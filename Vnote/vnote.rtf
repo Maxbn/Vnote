@@ -1,0 +1,844 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1187\cocoasubrtf390
+{\fonttbl\f0\fnil\fcharset0 Menlo-Regular;}
+{\colortbl;\red255\green255\blue255;\red0\green116\blue0;\red100\green56\blue32;\red196\green26\blue22;
+\red170\green13\blue145;\red46\green13\blue110;\red38\green71\blue75;\red63\green110\blue116;\red92\green38\blue153;
+\red28\green0\blue207;}
+\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\deftab674
+\pard\tx674\pardeftab674\pardirnatural
+
+\f0\fs28 \cf2 \CocoaLigature0 //\cf0 \
+\cf2 //  AppDelegate.m\cf0 \
+\cf2 //  Pratice\cf0 \
+\cf2 //\cf0 \
+\cf2 //  Created by Maxime BENJAMIN on 8/10/13.\cf0 \
+\cf2 //  Copyright (c) 2013 Maxime BENJAMIN. All rights reserved.\cf0 \
+\cf2 //\cf0 \
+\
+\cf3 #import \cf4 "AppDelegate.h"\cf3 \
+\cf0 \
+\
+\cf5 @implementation\cf0  AppDelegate\
+\cf5 @synthesize\cf0  listTableView,projectTableView,taskEntry,projectList,\
+addTaskButton,removeTaskButton,playerView,timeSlider,window,selectedProject,player,playerItem,playerObserver,playerLayer;\
+\
+\
+-(\cf5 id\cf0 )init\{\
+    \
+    \cf5 self\cf0  = [\cf5 super\cf0  \cf6 init\cf0 ];\
+    \cf5 if\cf0 (\cf5 self\cf0 )\{\
+        \
+        [\cf5 self\cf0  \cf7 loadDataFromDisk\cf0 ];\
+     \
+        \
+        \cf5 if\cf0  (!\cf8 projectList\cf0 ) \{\
+            \cf8 projectList\cf0  = [[\cf9 NSMutableArray\cf0  \cf6 alloc\cf0 ]\cf6 init\cf0 ];\
+        \}\
+        \
+        \
+        [\cf8 taskEntry\cf0  \cf6 setEnabled\cf0 :\cf5 NO\cf0 ];\
+        [\cf8 window\cf0  \cf6 registerForDraggedTypes\cf0 :[\cf9 NSArray\cf0  \cf6 arrayWithObject\cf0 :\cf9 NSURLPboardType\cf0 ]];\
+\
+        \
+    \}\
+    \
+    \cf5 return\cf0  \cf5 self\cf0 ;\
+    \
+\}\
+\
+\
+\
+- (\cf5 void\cf0 )applicationDidFinishLaunching:(\cf9 NSNotification\cf0  *)aNotification\{\
+    \
+    [\cf8 projectTableView\cf0  \cf6 setBackgroundColor\cf0 :[\cf9 NSColor\cf0  \cf6 clearColor\cf0 ]];\
+    \
+    \cf8 player\cf0  = [\cf9 AVPlayer\cf0  \cf6 playerWithURL\cf0 :\cf5 Nil\cf0 ];\
+    \
+    \cf2 //        creates a video layer\cf0 \
+    \
+    [\cf5 self\cf0 .\cf8 playerView\cf0  \cf6 setWantsLayer\cf0 :\cf5 YES\cf0 ];\
+    \cf8 playerLayer\cf0  = [\cf9 AVPlayerLayer\cf0  \cf6 playerLayerWithPlayer\cf0 :\cf8 player\cf0 ];\
+    \
+    \
+    \
+    \cf8 playerLayer\cf0 .\cf9 frame\cf0  = \cf5 self\cf0 .\cf8 playerView\cf0 .\cf6 layer\cf0 .\cf9 bounds\cf0 ;\
+    [\cf5 self\cf0 .\cf8 playerView\cf0 .\cf6 layer\cf0  \cf6 addSublayer\cf0 :\cf8 playerLayer\cf0 ];\
+\cf2 //    [playerLayer setVideoGravity:AVLayerVideoGravityResizeAspectFill];\cf0 \
+    \cf8 playerLayer\cf0 .\cf9 autoresizingMask\cf0  = \cf6 kCALayerWidthSizable\cf0  |\
+    \cf6 kCALayerHeightSizable\cf0 ;\
+    \
+    \cf8 playerItem\cf0  = [\cf9 AVPlayerItem\cf0  \cf6 playerItemWithAsset\cf0 :\cf5 Nil\cf0 ];\
+    \
+    \cf5 __weak\cf0  \cf5 typeof\cf0 (\cf5 self\cf0 ) weakSelf = \cf5 self\cf0 ;\
+    \
+    [\cf8 player\cf0  \cf6 addPeriodicTimeObserverForInterval\cf0 :\cf6 CMTimeMakeWithSeconds\cf0 (\cf10 0.1\cf0 , \cf10 100\cf0 )\
+                                         \cf6 queue\cf0 :\cf5 Nil\cf0 \
+                                    \cf6 usingBlock\cf0 :^(\cf9 CMTime\cf0  time) \{\
+                                        weakSelf.\cf8 timeSlider\cf0 .\cf6 floatValue\cf0  = \cf6 CMTimeGetSeconds\cf0 (weakSelf.\cf8 player\cf0 .\cf6 currentTime\cf0 );\
+                                    \}];\
+    [\cf8 playerLayer\cf0  \cf6 setVideoGravity\cf0 :\cf9 AVLayerVideoGravityResizeAspect\cf0 ];\
+            [\cf8 projectTableView\cf0  \cf6 reloadData\cf0 ];\
+    \
+    \
+\
+\}\
+\
+\
+\cf3 #pragma mark Buttons\
+\cf0 \
+- (\cf5 IBAction\cf0 )addTask:(\cf5 id\cf0 )sender \{\
+    \
+\
+    \cf2 //    Gets the time of the video\cf0 \
+    \
+    \cf9 CMTime\cf0  videoTime = \cf8 player\cf0 .\cf6 currentTime\cf0 ;\
+    \cf9 NSUInteger\cf0  videoTimeCode = \cf6 CMTimeGetSeconds\cf0 (videoTime);\
+    \
+    \cf2 //    Gets the task name from the textField\cf0 \
+    \cf9 NSString\cf0  *taskName = [\cf8 taskEntry\cf0  \cf6 stringValue\cf0 ];\
+    \
+    \cf2 //    Checks if the textfield or the selection is empty\cf0 \
+    \cf5 if\cf0  ([taskName \cf6 length\cf0 ] == \cf10 0\cf0  || [\cf8 taskEntry\cf0 .\cf6 stringValue\cf0  \cf6 isEqual\cf0 : \cf4 @" "\cf0 ]) \{\
+        [\cf8 taskEntry\cf0  \cf6 setStringValue\cf0 :\cf4 @""\cf0 ];\
+        [\cf8 taskEntry\cf0  \cf6 setEnabled\cf0 :\cf5 NO\cf0 ];\
+        [\cf8 player\cf0  \cf6 play\cf0 ];\
+        \cf5 return\cf0 ;\
+    \}\cf5 else\cf0  \cf5 if\cf0  ([\cf8 projectTableView\cf0  \cf6 selectedRow\cf0 ] ==-\cf10 1\cf0 )\{\
+        \cf5 return\cf0 ;\
+    \}\
+    \
+\cf2 //    Sets up the task\cf0 \
+    \
+    \cf8 Task\cf0  *newTask =  [[\cf8 Task\cf0  \cf6 alloc\cf0 ]\cf6 init\cf0 ];\
+    newTask.\cf8 taskName\cf0  = taskName;\
+    newTask.\cf8 taskTime\cf0  = videoTimeCode;\
+    newTask.\cf8 timeCode\cf0  = videoTime;\
+    [newTask \cf7 setformatedTime\cf0 :videoTimeCode];\
+    \
+    newTask.\cf8 checked\cf0  = [[\cf9 NSButton\cf0  \cf6 alloc\cf0 ]\cf6 init\cf0 ];\
+    [newTask.\cf8 checked\cf0  \cf6 setButtonType\cf0 :\cf6 NSSwitchButton\cf0 ];\
+    [newTask.\cf8 checked\cf0  \cf6 setTitle\cf0 :\cf4 @""\cf0 ];\
+    [newTask.\cf8 checked\cf0  \cf6 setTag\cf0 :[\cf8 selectedProject\cf0 .\cf8 toDoList\cf0  \cf6 count\cf0 ]];\
+    \cf5 SEL\cf0  aSelector = \cf5 @selector\cf0 (checkTask:);\
+    [newTask.\cf8 checked\cf0  \cf6 setAction\cf0 :aSelector];\
+    \
+    [\cf8 selectedProject\cf0 .\cf8 toDoList\cf0  \cf6 addObject\cf0 :newTask];\
+\
+    [\cf8 listTableView\cf0  \cf6 reloadData\cf0 ];\
+    [\cf8 taskEntry\cf0  \cf6 setStringValue\cf0 :\cf4 @""\cf0 ];\
+    [\cf8 taskEntry\cf0  \cf6 setEnabled\cf0 :\cf5 NO\cf0 ];\
+    [\cf8 player\cf0  \cf6 play\cf0 ];\
+    \
+    \
+    \
+\}\
+\
+- (\cf5 IBAction\cf0 )addProject:(\cf5 id\cf0 )sender \{\
+    \
+    \cf8 Project\cf0  * projectToAdd = [[\cf8 Project\cf0  \cf6 alloc\cf0 ]\cf6 init\cf0 ];\
+    \
+    \cf2 //    Ask to choose a file!!\cf0 \
+    \cf9 NSOpenPanel\cf0  *chooseFilePanel = [\cf9 NSOpenPanel\cf0  \cf6 openPanel\cf0 ];\
+    [chooseFilePanel \cf6 setCanChooseFiles\cf0 :\cf5 YES\cf0 ];\
+    [chooseFilePanel \cf6 setCanChooseDirectories\cf0 :\cf5 NO\cf0 ];\
+    \
+    \cf5 if\cf0  ( [chooseFilePanel \cf6 runModal\cf0 ] == \cf6 NSOKButton\cf0  )\{\
+        \
+        projectToAdd.\cf8 videoUrl\cf0  = [chooseFilePanel \cf6 URL\cf0 ];\
+        \cf9 NSURL\cf0  *fileUrl = [chooseFilePanel \cf6 URL\cf0 ];\
+        \cf9 NSString\cf0  *fileName = [[fileUrl \cf6 path\cf0 ] \cf6 lastPathComponent\cf0 ];\
+        \cf9 NSString\cf0  *cleanName = [fileName \cf6 stringByReplacingOccurrencesOfString\cf0 :\cf4 @".mov"\cf0  \cf6 withString\cf0 :\cf4 @""\cf0 ];\
+        cleanName = [cleanName \cf6 stringByReplacingOccurrencesOfString\cf0 :\cf4 @".mp4"\cf0  \cf6 withString\cf0 :\cf4 @""\cf0 ];\
+        projectToAdd.\cf8 projectName\cf0  = cleanName;\
+    \}\cf5 else\cf0 \{\
+        \cf5 return\cf0 ;\
+    \}\
+    \
+    \
+    \
+    \cf2 //    Adds the project to the list\cf0 \
+    [\cf8 projectList\cf0  \cf6 addObject\cf0 :projectToAdd];\
+    \
+    \
+    \
+    [\cf8 projectTableView\cf0  \cf6 reloadData\cf0 ];\
+    [\cf8 listTableView\cf0  \cf6 reloadData\cf0 ];\
+    \
+\cf2 //    selects the last added project\cf0 \
+    \cf9 NSIndexSet\cf0  *selectionIndex;\
+    \
+    selectionIndex = [\cf9 NSIndexSet\cf0  \cf6 indexSetWithIndex\cf0 :[\cf8 projectList\cf0  \cf6 count\cf0 ]-\cf10 1\cf0 ];\
+    \
+    [\cf8 projectTableView\cf0  \cf6 selectRowIndexes\cf0 :selectionIndex \cf6 byExtendingSelection\cf0 :\cf5 NO\cf0  ];\
+    \
+\}\
+\
+- (\cf5 IBAction\cf0 )removeProject:(\cf5 id\cf0 )sender \{\
+    \
+    \
+    \cf2 //    Checks if a project is selected\cf0 \
+    \cf5 if\cf0  ([\cf8 projectTableView\cf0  \cf6 selectedRow\cf0 ] ==-\cf10 1\cf0 ) \{\
+        \cf5 return\cf0 ;\
+    \}\
+    \
+    \cf2 //    Revmoes and reload\cf0 \
+    \
+    [\cf8 projectList\cf0  \cf6 removeObjectAtIndex\cf0 :[\cf8 projectTableView\cf0  \cf6 selectedRow\cf0 ]];\
+    [\cf8 projectTableView\cf0  \cf6 deselectRow\cf0 :[\cf8 projectTableView\cf0  \cf6 selectedRow\cf0 ]];\
+    [\cf8 projectTableView\cf0  \cf6 reloadData\cf0 ];\
+    [\cf8 player\cf0  \cf6 replaceCurrentItemWithPlayerItem\cf0 :\cf5 Nil\cf0 ];\
+    \
+    \
+\}\
+\
+- (\cf5 IBAction\cf0 )removeTask:(\cf5 id\cf0 )sender \{\
+    \cf5 if\cf0  ([\cf8 listTableView\cf0  \cf6 selectedRow\cf0 ] ==-\cf10 1\cf0 ) \{\
+        \cf5 return\cf0 ;\
+    \}\
+    \
+    \cf2 //    Gets the selected Project\cf0 \
+    \cf8 Project\cf0  *projectToDeleteFrom = [\cf8 projectList\cf0  \cf6 objectAtIndex\cf0 :[\cf8 projectTableView\cf0  \cf6 selectedRow\cf0 ]];\
+    [projectToDeleteFrom.\cf8 toDoList\cf0  \cf6 removeObjectAtIndex\cf0 :[\cf8 listTableView\cf0  \cf6 selectedRow\cf0 ]];\
+    [\cf8 projectList\cf0  \cf6 replaceObjectAtIndex\cf0 :[\cf8 projectTableView\cf0  \cf6 selectedRow\cf0 ] \cf6 withObject\cf0 :projectToDeleteFrom];\
+    [\cf8 listTableView\cf0  \cf6 deselectRow\cf0 :[\cf8 listTableView\cf0  \cf6 selectedRow\cf0 ]];\
+    \
+    [\cf8 listTableView\cf0  \cf6 reloadData\cf0 ];\
+    [\cf8 projectTableView\cf0  \cf6 reloadData\cf0 ];\
+    \
+\}\
+\
+- (\cf5 IBAction\cf0 )playVideo:(\cf5 id\cf0 )sender \{\
+    \
+    \cf5 if\cf0  ([\cf8 player\cf0  \cf6 rate\cf0 ] != \cf10 1.f\cf0 )\
+	\{\
+		\
+		[\cf8 player\cf0  \cf6 play\cf0 ];\
+\cf2 //        [taskEntry setEnabled:NO];\cf0 \
+	\}\
+	\cf5 else\cf0 \
+	\{\
+        [\cf8 player\cf0  \cf6 pause\cf0 ];\
+        [\cf8 taskEntry\cf0  \cf6 setEnabled\cf0 :\cf5 YES\cf0 ];\
+        [\cf8 taskEntry\cf0  \cf6 selectText\cf0 :\cf8 taskEntry\cf0 ];\
+	\}\
+\}\
+\
+- (\cf5 IBAction\cf0 )enterFullScreen:(\cf5 id\cf0 )sender \{\
+    \
+    \cf5 if\cf0  (\cf8 selectedProject\cf0  != \cf5 nil\cf0  && (![\cf8 playerView\cf0  \cf6 isInFullScreenMode\cf0 ])) \{\
+        \cf9 NSScreen\cf0  *screen = [\cf9 NSScreen\cf0  \cf6 mainScreen\cf0 ];\
+        [\cf8 playerView\cf0  \cf6 enterFullScreenMode\cf0 :screen \cf6 withOptions\cf0 :\cf5 nil\cf0 ];\
+        [\cf8 playerView\cf0  \cf6 setFrame\cf0 :screen.\cf6 visibleFrame\cf0  ];\
+    \
+        \}\
+        \
+    \cf5 else\cf0  \cf5 if\cf0  ([\cf8 playerView\cf0  \cf6 isInFullScreenMode\cf0 ])\{\
+            [\cf8 playerView\cf0  \cf6 exitFullScreenModeWithOptions\cf0 :\cf5 nil\cf0 ];\
+        \}\
+    \
+\}\
+\
+- (\cf5 IBAction\cf0 )checkTask:(\cf5 id\cf0 )sender\{\
+    \
+\cf2 //    NSLog(@"task Checked");\cf0 \
+    \cf8 Task\cf0  *checkedTask = [\cf8 selectedProject\cf0 .\cf8 toDoList\cf0  \cf6 objectAtIndex\cf0 :[sender \cf6 tag\cf0 ]];\
+    \
+    checkedTask.\cf8 done\cf0  = (!checkedTask.\cf8 done\cf0 );\
+    [\cf8 listTableView\cf0  \cf6 reloadData\cf0 ];\
+\}\
+\
+- (\cf5 IBAction\cf0 )exportPDF:(\cf5 id\cf0 )sender \{\
+    \
+    \cf2 //   Create an array with the requested frames\cf0 \
+    \cf5 if\cf0  ([\cf8 projectTableView\cf0  \cf6 selectedRow\cf0 ] !=-\cf10 1\cf0 ) \{\
+        \cf8 Project\cf0  *projectToExport = [\cf8 projectList\cf0  \cf6 objectAtIndex\cf0 :[\cf8 projectTableView\cf0  \cf6 selectedRow\cf0 ]];\
+        \cf9 NSMutableArray\cf0  *framesToExport = [\cf9 NSMutableArray\cf0  \cf6 array\cf0 ];\
+        \cf9 NSMutableArray\cf0  *captionToExport = [\cf9 NSMutableArray\cf0  \cf6 array\cf0 ];\
+        \
+        \cf5 if\cf0  (projectToExport) \{\
+            \cf5 for\cf0  ( \cf8 Task\cf0  * taskToExport \cf5 in\cf0  projectToExport.\cf8 toDoList\cf0 ) \{\
+                \cf9 AVAsset\cf0  *myAsset = [\cf9 AVAsset\cf0  \cf6 assetWithURL\cf0 :projectToExport.\cf8 videoUrl\cf0 ];\
+                \cf9 AVAssetImageGenerator\cf0  *imageGenerator = [[\cf9 AVAssetImageGenerator\cf0  \cf6 alloc\cf0 ]\cf6 initWithAsset\cf0 :myAsset];\
+                \
+                \cf9 NSError\cf0  *error;\
+                \cf9 CMTime\cf0  actualTime;\
+                \cf9 CMTime\cf0  captureTime = taskToExport.\cf8 timeCode\cf0 ;\
+                \cf9 CGImageRef\cf0  frame = [imageGenerator \cf6 copyCGImageAtTime\cf0 :captureTime \cf6 actualTime\cf0 :&actualTime \cf6 error\cf0 :&error];\
+                \
+                \cf5 if\cf0 (frame != \cf5 NULL\cf0 )\{\
+                    \
+                    [framesToExport \cf6 addObject\cf0 :(\cf5 __bridge\cf0  \cf5 id\cf0 )(frame)];\
+                    \cf6 CGImageRelease\cf0 (frame);\
+                \}\
+                \
+                [captionToExport \cf6 addObject\cf0 :taskToExport.\cf8 taskName\cf0 ];\
+            \}\
+            \
+        \}\
+        \
+        \cf9 NSSavePanel\cf0  *savePanel = [\cf9 NSSavePanel\cf0  \cf6 savePanel\cf0 ];\
+        \cf9 NSString\cf0  *saveName = [projectToExport.\cf8 projectName\cf0  \cf6 stringByAppendingString\cf0 :\cf4 @".pdf"\cf0 ];\
+        [savePanel \cf6 setNameFieldStringValue\cf0 :saveName];\
+        \cf9 NSSize\cf0  pageSize = \{\cf10 1920\cf0 ,\cf10 1080\cf0 \};\
+        \cf5 int\cf0  pageNumber = \cf10 1\cf0 ;\
+        \
+        \
+        \cf5 if\cf0  ([savePanel \cf6 runModal\cf0 ] == \cf6 NSOKButton\cf0 ) \{\
+            \
+            \cf9 NSPrintInfo\cf0  *printInfo;\
+            \cf9 NSPrintInfo\cf0  *sharedInfo;\
+            \cf9 NSPrintOperation\cf0  *printOp;\
+            \cf9 NSMutableDictionary\cf0  *printInfoDict;\
+            \cf9 NSMutableDictionary\cf0  *sharedDict;\
+            \
+            sharedInfo = [\cf9 NSPrintInfo\cf0  \cf6 sharedPrintInfo\cf0 ];\
+            sharedDict = [sharedInfo \cf6 dictionary\cf0 ];\
+            printInfoDict = [\cf9 NSMutableDictionary\cf0  \cf6 dictionaryWithDictionary\cf0 :\
+                             sharedDict];\
+            \
+            [printInfoDict \cf6 setObject\cf0 :\cf9 NSPrintSaveJob\cf0 \
+                              \cf6 forKey\cf0 :\cf9 NSPrintJobDisposition\cf0 ];\
+            \
+            [printInfoDict \cf6 setObject\cf0 :[[savePanel \cf6 URL\cf0 ]\cf6 path\cf0 ] \cf6 forKey\cf0 :\cf9 NSPrintSavePath\cf0 ];\
+            \
+            \
+            printInfo = [[\cf9 NSPrintInfo\cf0  \cf6 alloc\cf0 ] \cf6 initWithDictionary\cf0 : printInfoDict];\
+            [printInfo \cf6 setHorizontalPagination\cf0 : \cf6 NSAutoPagination\cf0 ];\
+            [printInfo \cf6 setOrientation\cf0 :\cf6 NSLandscapeOrientation\cf0 ];\
+            \
+            \cf8 pdfView\cf0 .\cf8 frameCount\cf0  = framesToExport.\cf6 count\cf0 ;\
+            \cf8 pdfView\cf0 .\cf8 frameScale\cf0  = \cf10 2.25\cf0 ;\
+            \cf8 pdfView\cf0 .\cf8 pageSize\cf0  = \cf6 NSMakeSize\cf0 (\cf10 1920\cf0 , \cf10 1080\cf0 );\
+            \cf8 pdfView\cf0 .\cf8 frames\cf0  = framesToExport;\
+            \cf8 pdfView\cf0 .\cf8 captions\cf0  = captionToExport;\
+            \
+            \cf5 if\cf0 (\cf8 pdfView\cf0 .\cf8 frameCount\cf0  > \cf10 6\cf0  && \cf8 pdfView\cf0 .\cf8 frameCount\cf0  < \cf10 13\cf0 )\{\
+                pageNumber = \cf10 2\cf0 ;\
+            \}\cf5 else\cf0  \cf5 if\cf0  (\cf8 pdfView\cf0 .\cf8 frameCount\cf0  > \cf10 12\cf0  && \cf8 pdfView\cf0 .\cf8 frameCount\cf0  < \cf10 19\cf0 )\{\
+                pageNumber = \cf10 3\cf0 ;\
+            \}\cf5 else\cf0  \cf5 if\cf0  (\cf8 pdfView\cf0 .\cf8 frameCount\cf0  > \cf10 18\cf0  && \cf8 pdfView\cf0 .\cf8 frameCount\cf0  < \cf10 25\cf0 )\{\
+                pageNumber = \cf10 4\cf0 ;\
+            \}\
+            \
+            \cf9 NSSize\cf0  pdfSize = \{pageSize.\cf9 width\cf0 ,pageSize.\cf9 height\cf0  *pageNumber\};\
+            \
+            [\cf8 pdfView\cf0  \cf6 setFrameSize\cf0 :pdfSize];\
+            [printInfo \cf6 setPaperSize\cf0 :pageSize];\
+            [printInfo \cf6 setVerticalPagination\cf0 : \cf6 NSAutoPagination\cf0 ];\
+            [printInfo \cf6 setBottomMargin\cf0 :\cf10 0\cf0 ];\
+            [printInfo \cf6 setLeftMargin\cf0 :\cf10 0\cf0 ];\
+            [printInfo \cf6 setRightMargin\cf0 :\cf10 0\cf0 ];\
+            [printInfo \cf6 setTopMargin\cf0 :\cf10 0\cf0 ];\
+            \
+            \
+            \
+            \
+            printOp = [\cf9 NSPrintOperation\cf0  \cf6 printOperationWithView\cf0 :\cf8 pdfView\cf0 \
+                                                     \cf6 printInfo\cf0 :printInfo];\
+            [printOp \cf6 setShowsPrintPanel\cf0 :\cf5 NO\cf0 ];\
+            [printOp \cf6 setShowsProgressPanel\cf0 :\cf5 NO\cf0 ];\
+            [printOp \cf6 runOperation\cf0 ];\
+            \
+        \}\
+        \
+    \}\
+    \
+\}\
+\
+\
+- (\cf5 IBAction\cf0 )seekToTime:(\cf5 id\cf0 )sender \{\
+    \
+    \cf5 if\cf0  (\cf8 selectedProject\cf0  != \cf5 nil\cf0 ) \{\
+       \
+        \
+        \cf9 CMTime\cf0  time = \cf6 CMTimeMakeWithSeconds\cf0 (\cf8 timeSlider\cf0 .\cf6 floatValue\cf0 , \cf10 600\cf0 );\
+        \
+        \cf5 if\cf0  ([\cf5 self\cf0 .\cf8 timeSlider\cf0  \cf6 isHighlighted\cf0 ]) \{\
+            [\cf8 player\cf0  \cf6 setMuted\cf0 :\cf5 YES\cf0 ];\
+            [\cf8 player\cf0  \cf6 pause\cf0 ];\
+        \}\
+        [\cf8 player\cf0  \cf6 seekToTime\cf0 :time];\
+        [\cf8 taskEntry\cf0  \cf6 setEnabled\cf0 :\cf5 YES\cf0 ];\
+        [\cf8 taskEntry\cf0  \cf6 selectText\cf0 :\cf8 taskEntry\cf0 ];\
+\cf2 //        [player pause];\cf0 \
+        [\cf8 player\cf0  \cf6 setMuted\cf0 :\cf5 NO\cf0 ];\
+    \}\
+    \
+\
+\}\
+\
+- (\cf5 IBAction\cf0 )moveOneFrameForward:(\cf5 id\cf0 )sender \{\
+    [\cf8 player\cf0  \cf6 pause\cf0 ];\
+\
+    [\cf8 playerItem\cf0  \cf6 stepByCount\cf0 :\cf10 1\cf0 ];\
+    \
+    \
+\}\
+\
+- (\cf5 IBAction\cf0 )moveOneFrameBackward:(\cf5 id\cf0 )sender \{\
+    [\cf8 player\cf0  \cf6 pause\cf0 ];\
+    [\cf8 playerItem\cf0  \cf6 stepByCount\cf0 :-\cf10 1\cf0 ];\
+\}\
+\
+\
+\
+\
+\
+-(\cf5 void\cf0 )playerItemDidReachEnd:(\cf9 NSNotification\cf0  *)notification\{\
+    \
+    [\cf8 player\cf0  \cf6 seekToTime\cf0 :\cf9 kCMTimeZero\cf0 ];\
+    [\cf8 player\cf0  \cf6 play\cf0 ];\
+   \
+\}\
+\
+\cf3 #pragma mark Tableview stuff\
+\cf0 \
+- (\cf5 void\cf0 )tableViewSelectionDidChange:(\cf9 NSNotification\cf0  *)aNotification\{\
+    \
+    \cf2 //    Gets the selected Project\cf0 \
+    \cf5 if\cf0  ([\cf8 projectList\cf0  \cf6 count\cf0 ] != \cf10 0\cf0 ) \{\
+        [\cf8 projectTableView\cf0  \cf6 setAllowsEmptySelection\cf0 :\cf5 NO\cf0 ];\
+    \}\
+    \
+    \cf5 if\cf0  ([\cf8 projectTableView\cf0  \cf6 selectedRow\cf0 ] != -\cf10 1\cf0 ) \{\
+        \cf8 selectedProject\cf0  = [\cf8 projectList\cf0  \cf6 objectAtIndex\cf0 :[\cf8 projectTableView\cf0  \cf6 selectedRow\cf0 ]];\
+    \}\
+    \
+    \
+    \
+    \
+    \cf2 //    Turns ON or OFF the buttons\cf0 \
+    \cf5 if\cf0  (\cf8 selectedProject\cf0  != \cf5 nil\cf0 )\{\
+        [\cf8 addTaskButton\cf0  \cf6 setEnabled\cf0 :\cf5 YES\cf0 ];\
+    \}\cf5 else\cf0  \cf5 if\cf0  (\cf8 selectedProject\cf0  == \cf5 nil\cf0 )\{\
+        [\cf8 addTaskButton\cf0  \cf6 setEnabled\cf0 :\cf5 NO\cf0 ];\
+        \
+    \}\
+    \
+    \cf5 if\cf0  ([\cf8 listTableView\cf0  \cf6 selectedRow\cf0 ] != -\cf10 1\cf0 )\{\
+        [\cf8 removeTaskButton\cf0  \cf6 setEnabled\cf0 :\cf5 YES\cf0 ];\
+    \}\cf5 else\cf0  \cf5 if\cf0  ([\cf8 listTableView\cf0  \cf6 selectedRow\cf0 ] == -\cf10 1\cf0 )\{\
+        [\cf8 removeTaskButton\cf0  \cf6 setEnabled\cf0 :\cf5 NO\cf0 ];\
+    \}\
+    \
+    \cf2 //    Plays the right video\cf0 \
+    \
+    \cf9 NSURL\cf0  *url;\
+    \
+    \cf2 //    Shows the place holder if nothing is selected\cf0 \
+    \cf5 if\cf0  (\cf8 selectedProject\cf0  ==\cf5 nil\cf0 ) \{\
+        \
+        \
+        \cf8 playerItem\cf0  = [\cf9 AVPlayerItem\cf0  \cf6 playerItemWithAsset\cf0 :\cf5 Nil\cf0 ];\
+        \
+        \cf2 //        Register the item to know when it ends playing\cf0 \
+        \
+        \
+        \
+        \
+        [\cf8 player\cf0  \cf6 replaceCurrentItemWithPlayerItem\cf0 :\cf8 playerItem\cf0 ];\
+        \
+    \}\cf5 else\cf0 \{\
+        \
+        \
+        url = \cf8 selectedProject\cf0 .\cf8 videoUrl\cf0 ;\
+        \cf8 playerItem\cf0  = [\cf9 AVPlayerItem\cf0  \cf6 playerItemWithURL\cf0 :url];\
+        \
+        [[\cf9 NSNotificationCenter\cf0  \cf6 defaultCenter\cf0 ]\
+         \cf6 addObserver\cf0 :\cf5 self\cf0 \
+         \cf6 selector\cf0 :\cf5 @selector\cf0 (playerItemDidReachEnd:)\
+         \cf6 name\cf0 :\cf9 AVPlayerItemDidPlayToEndTimeNotification\cf0 \
+         \cf6 object\cf0 :\cf8 playerItem\cf0 ];\
+        \
+        [\cf8 player\cf0  \cf6 replaceCurrentItemWithPlayerItem\cf0 :\cf8 playerItem\cf0 ];\
+        \
+        \cf2 //    Sets up the time slider\cf0 \
+        \
+        \cf8 timeSlider\cf0 .\cf6 minValue\cf0  = \cf10 0\cf0 ;\
+        \cf8 timeSlider\cf0 .\cf6 maxValue\cf0  = \cf6 CMTimeGetSeconds\cf0 (\cf8 playerItem\cf0 .\cf9 duration\cf0 );\
+        \
+    \}\
+    \
+    \cf2 //    Shows the frame linked to the task\cf0 \
+    \
+    \cf5 if\cf0  ([\cf8 listTableView\cf0  \cf6 selectedRow\cf0 ] !=-\cf10 1\cf0 )\{\
+        \
+        \
+        \cf5 if\cf0 ([\cf8 selectedProject\cf0 .\cf8 toDoList\cf0  \cf6 count\cf0 ] >= [\cf8 listTableView\cf0  \cf6 selectedRow\cf0 ])\{\
+            \
+            \cf8 Task\cf0  *selectedTask = [\cf8 selectedProject\cf0 .\cf8 toDoList\cf0  \cf6 objectAtIndex\cf0 :[\cf8 listTableView\cf0  \cf6 selectedRow\cf0 ]];\
+            \
+            [\cf8 player\cf0  \cf6 seekToTime\cf0 :selectedTask.\cf8 timeCode\cf0 ];\
+            [\cf8 player\cf0  \cf6 pause\cf0 ];\
+\cf2 //            [listTableView reloadData];\cf0 \
+        \}\
+        \
+        \
+    \}\
+    \
+    \
+    \
+    \
+\cf2 //    [projectTableView reloadData];\cf0 \
+    \cf5 if\cf0  ([\cf8 listTableView\cf0  \cf6 selectedRow\cf0 ] ==-\cf10 1\cf0 )\{\
+        \
+         [\cf8 listTableView\cf0  \cf6 reloadData\cf0 ];\
+    \}\
+       \
+   \
+\}\
+\
+\cf2 //Creates the right number of rows\cf0 \
+- (\cf9 NSInteger\cf0 )numberOfRowsInTableView:(\cf9 NSTableView\cf0  *)aTableView\{\
+    \
+    \cf2 //    For the task\cf0 \
+    \cf5 if\cf0 (aTableView == \cf8 listTableView\cf0 )\{\
+        \
+        \cf5 if\cf0  ([\cf8 projectTableView\cf0  \cf6 selectedRow\cf0 ] == -\cf10 1\cf0 ) \{\
+            \
+            \cf5 return\cf0  \cf10 0\cf0 ;\
+        \}\
+        \
+        \
+        \cf8 Project\cf0  *projectToDisplay = [\cf8 projectList\cf0  \cf6 objectAtIndex\cf0 :[\cf8 projectTableView\cf0  \cf6 selectedRow\cf0 ]];\
+        \cf5 return\cf0  [projectToDisplay.\cf8 toDoList\cf0  \cf6 count\cf0 ];\
+    \}\
+    \
+    \cf2 //    For the Projects\cf0 \
+    \cf5 else\cf0  \cf5 if\cf0  (aTableView == \cf8 projectTableView\cf0 )\{\
+        \cf5 return\cf0  [\cf8 projectList\cf0  \cf6 count\cf0 ];\
+        \
+    \}\
+    \
+    \
+    \cf5 return\cf0  \cf10 0\cf0 ;\
+\}\
+\
+\cf2 //Populates the rows\cf0 \
+\
+- (\cf9 NSView\cf0  *)tableView:(\cf9 NSTableView\cf0  *)tableView\
+   viewForTableColumn:(\cf9 NSTableColumn\cf0  *)tableColumn\
+                  row:(\cf9 NSInteger\cf0 )row\
+\
+\
+\{\
+    \cf9 NSTextField\cf0  *result = [tableView \cf6 makeViewWithIdentifier\cf0 :\cf4 @"MyView"\cf0  \cf6 owner\cf0 :\cf5 self\cf0 ];\
+    [result \cf6 setBordered\cf0 :\cf5 NO\cf0 ];\
+    [[result \cf6 cell\cf0 ] \cf6 setLineBreakMode\cf0 :\cf6 NSLineBreakByTruncatingTail\cf0 ];\
+    [[result \cf6 cell\cf0 ]\cf6 setBackgroundColor\cf0 :[\cf9 NSColor\cf0  \cf6 clearColor\cf0 ]];\
+    [[result \cf6 cell\cf0 ] \cf6 setTruncatesLastVisibleLine\cf0 :\cf5 NO\cf0 ];\
+    [result \cf6 setFocusRingType\cf0 :\cf6 NSFocusRingTypeNone\cf0 ];\
+    [tableView \cf6 setSelectionHighlightStyle\cf0 :\cf6 NSTableViewSelectionHighlightStyleRegular\cf0 ];\
+\
+\
+\
+    \cf5 if\cf0 (tableView == \cf8 listTableView\cf0 )\{\
+        \
+        [tableView \cf6 setRowHeight\cf0 :\cf10 22\cf0 ];\
+        \
+        \cf9 NSString\cf0  *columnIdentifer = [tableColumn \cf6 identifier\cf0 ];\
+        \
+        \cf5 if\cf0  (result == \cf5 nil\cf0 )\
+        \{\
+            \
+            \cf2 // create the new NSTextField with a frame of the \{0,0\} with the width of the table\cf0 \
+            \cf2 // note that the height of the frame is not really relevant, the row-height will modify the height\cf0 \
+            \cf2 // the new text field is then returned as an autoreleased object\cf0 \
+            \
+            \cf9 NSRect\cf0  frame = \cf6 NSMakeRect\cf0 (\cf10 0\cf0 , \cf10 0\cf0 , tableView.\cf6 frame\cf0 .\cf9 size\cf0 .\cf9 width\cf0 , \cf10 0\cf0 );\
+            result = [[\cf9 NSTextField\cf0  \cf6 alloc\cf0 ]\cf6 initWithFrame\cf0 :frame];\
+            [result \cf6 setBordered\cf0 :\cf5 NO\cf0 ];\
+            \
+            result.\cf9 identifier\cf0  = \cf4 @"MyView"\cf0 ;\
+        \}\
+                \
+            \
+            \cf2 //        Checks if a project is selected\cf0 \
+        \cf5 if\cf0  (\cf8 selectedProject\cf0  == \cf5 nil\cf0 ) \{\
+                \cf5 if\cf0  ([columnIdentifer \cf6 isEqualToString\cf0 :\cf4 @"taskName"\cf0 ]) \{\
+                    \
+                    result.\cf6 stringValue\cf0  = \cf4 @"select a project"\cf0 ;\
+                    \cf5 return\cf0  result;\
+                    \
+                \}\cf5 else\cf0  \cf5 if\cf0  ([columnIdentifer \cf6 isEqualToString\cf0 :\cf4 @"timeCode"\cf0 ]) \{\
+                    \
+                    result.\cf6 stringValue\cf0  = \cf4 @"select a project"\cf0 ;\
+                    \cf5 return\cf0  result;\
+                \}\
+                \
+            \}\
+            \
+            \cf2 //      Gets the selected project\cf0 \
+            \cf2 //      Populates the name column\cf0 \
+            \cf5 if\cf0  ([columnIdentifer \cf6 isEqualToString\cf0 :\cf4 @"taskName"\cf0 ]) \{\
+                \
+                \cf9 NSMutableArray\cf0  *taskList = [\cf8 selectedProject\cf0 .\cf8 toDoList\cf0  \cf6 valueForKey\cf0 :\cf4 @"taskName"\cf0 ];\
+                \cf9 NSMutableArray\cf0  *checkList = \cf8 selectedProject\cf0 .\cf8 toDoList\cf0 ;\
+                \cf5 if\cf0  ([taskList \cf6 count\cf0 ] == \cf10 0\cf0 ) \{\
+                    \cf5 return\cf0  \cf10 0\cf0 ;\
+                \}\
+                \
+                \cf9 NSString\cf0  *theName = [taskList \cf6 objectAtIndex\cf0 :row];\
+                \
+                result.\cf6 stringValue\cf0  = theName;\
+                [[result \cf6 cell\cf0 ]\cf6 setBackgroundColor\cf0 :[\cf9 NSColor\cf0  \cf6 clearColor\cf0 ]];\
+                \cf8 Task\cf0  *task = [checkList \cf6 objectAtIndex\cf0 :row];\
+                \
+                \cf5 if\cf0  (task.\cf8 done\cf0  == \cf5 YES\cf0 ) \{\
+                    result.\cf6 alphaValue\cf0  = \cf10 0.2\cf0 ;\
+                \}\cf5 else\cf0  \cf5 if\cf0  (task.\cf8 done\cf0  == \cf5 NO\cf0 ) \{\
+                    result.\cf6 alphaValue\cf0  = \cf10 1\cf0 ;\
+                \}\
+                \
+                [result \cf6 setEditable\cf0 :\cf5 YES\cf0 ];\
+                \cf5 return\cf0  result;\
+                \cf6 NSLog\cf0 (\cf4 @"Populated the taskName Column"\cf0 );\
+                \
+            \}\
+        \
+            \cf2 //      Populates the Time Code column\cf0 \
+            \cf5 else\cf0  \cf5 if\cf0  ([columnIdentifer \cf6 isEqualToString\cf0 :\cf4 @"timeCode"\cf0 ])\{\
+            \
+                \cf9 NSMutableArray\cf0  *taskList = [\cf8 selectedProject\cf0 .\cf8 toDoList\cf0  \cf6 valueForKey\cf0 :\cf4 @"formatedTime"\cf0 ];\
+                \cf9 NSMutableArray\cf0  *timeList = \cf8 selectedProject\cf0 .\cf8 toDoList\cf0 ;\
+                \
+                \cf5 if\cf0  ([taskList \cf6 count\cf0 ] != \cf10 0\cf0 ) \{\
+                    \cf9 NSString\cf0  *timeCode = [taskList \cf6 objectAtIndex\cf0 :row];\
+                    result.\cf6 stringValue\cf0  = timeCode;\
+                    [[result \cf6 cell\cf0 ]\cf6 setBackgroundColor\cf0 :[\cf9 NSColor\cf0  \cf6 clearColor\cf0 ]];\
+                    \
+                    \cf8 Task\cf0  *task = [timeList \cf6 objectAtIndex\cf0 :row];\
+                    \
+                    \cf5 if\cf0  (task.\cf8 done\cf0  == \cf5 YES\cf0 ) \{\
+                        result.\cf6 alphaValue\cf0  = \cf10 0.2\cf0 ;\
+                    \}\cf5 else\cf0  \cf5 if\cf0  (task.\cf8 done\cf0  == \cf5 NO\cf0 ) \{\
+                        result.\cf6 alphaValue\cf0  = \cf10 1\cf0 ;\
+                    \}\
+                    \
+                    \cf5 return\cf0  result;\
+                \}\
+                \
+                \cf6 NSLog\cf0 (\cf4 @"Populated the timeCode Column"\cf0 );\
+                \
+                \
+            \}\cf5 else\cf0  \cf5 if\cf0  ([columnIdentifer \cf6 isEqualToString\cf0 :\cf4 @"checkBox"\cf0 ])\{\
+                \
+                \cf9 NSMutableArray\cf0  *checkBoxList = [\cf8 selectedProject\cf0 .\cf8 toDoList\cf0  \cf6 valueForKey\cf0 :\cf4 @"checked"\cf0 ];\
+                \cf9 NSMutableArray\cf0  *boxList = \cf8 selectedProject\cf0 .\cf8 toDoList\cf0 ;\
+\
+                \
+                \cf5 if\cf0  ([checkBoxList \cf6 count\cf0 ] != \cf10 0\cf0 ) \{\
+                    \cf9 NSButton\cf0  *checkBox = [checkBoxList \cf6 objectAtIndex\cf0 :row];\
+                    \
+                    \cf8 Task\cf0  *task = [boxList \cf6 objectAtIndex\cf0 :row];\
+                    \
+                    \cf5 if\cf0  (task.\cf8 done\cf0  == \cf5 YES\cf0 ) \{\
+                        checkBox.\cf6 alphaValue\cf0  = \cf10 0.2\cf0 ;\
+                    \}\cf5 else\cf0  \cf5 if\cf0  (task.\cf8 done\cf0  == \cf5 NO\cf0 ) \{\
+                        checkBox.\cf6 alphaValue\cf0  = \cf10 1\cf0 ;\
+                    \}\
+                    \
+                    \
+                    \cf5 return\cf0  checkBox;\
+                \}           \
+            \}\
+            \
+            \cf5 return\cf0  \cf10 0\cf0 ;\
+            \
+        \}\
+        \
+        \cf2 //    for the project views\cf0 \
+        \cf5 else\cf0  \cf5 if\cf0  (tableView == \cf8 projectTableView\cf0 )\{\
+            \
+            [tableView \cf6 setRowHeight\cf0 :\cf10 23\cf0 ];\
+            [result \cf6 setBordered\cf0 :\cf5 NO\cf0 ];\
+            \
+            \cf5 if\cf0  (result == \cf5 nil\cf0 )\
+            \{\
+                \
+                \cf2 // create the new NSTextField with a frame of the \{0,0\} with the width of the table\cf0 \
+                \cf2 // note that the height of the frame is not really relevant, the row-height will modify the height\cf0 \
+                \cf2 // the new text field is then returned as an autoreleased object\cf0 \
+                \
+                \cf9 NSRect\cf0  frame = \cf6 NSMakeRect\cf0 (\cf10 0\cf0 , \cf10 0\cf0 , tableView.\cf6 frame\cf0 .\cf9 size\cf0 .\cf9 width\cf0 , \cf10 0\cf0 );\
+                \
+                result = [[\cf9 NSTextField\cf0  \cf6 alloc\cf0 ]\cf6 initWithFrame\cf0 :frame];\
+                [result \cf6 setEditable\cf0 :\cf5 NO\cf0 ];\
+                [result \cf6 setBordered\cf0 :\cf5 NO\cf0 ];\
+                result.\cf9 identifier\cf0  = \cf4 @"MyView"\cf0 ;\
+                \
+            \}\
+            \
+            [\cf8 player\cf0  \cf6 pause\cf0 ];\
+            \cf9 NSMutableArray\cf0  *projectNameList = [\cf8 projectList\cf0  \cf6 valueForKey\cf0 :\cf4 @"projectName"\cf0 ];\
+            \
+            \cf9 NSString\cf0  *projectName = [projectNameList \cf6 objectAtIndex\cf0 :row ];\
+            \
+            result.\cf6 stringValue\cf0  = projectName;\
+            \
+            \cf5 return\cf0  result;\
+            \cf6 NSLog\cf0 (\cf4 @"Pupulated the Project Column"\cf0 );\
+            \
+            \
+        \}\
+        \
+        \cf5 return\cf0  \cf10 0\cf0 ;\
+        \
+       \
+\}\
+\
+\
+\cf2 //Makes the project names editable\cf0 \
+- (\cf5 void\cf0 )tableView:(\cf9 NSTableView\cf0  *)aTableView setObjectValue:(\cf5 id\cf0 )anObject forTableColumn:(\cf9 NSTableColumn\cf0  *)aTableColumn row:(\cf9 NSInteger\cf0 )rowIndex\{\
+    \
+    \cf2 //    Gets the selected row changes its name property and puts in back in\cf0 \
+\
+    \cf8 selectedProject\cf0 .\cf8 projectName\cf0  = anObject;\
+    [\cf8 projectList\cf0  \cf6 replaceObjectAtIndex\cf0 :rowIndex \cf6 withObject\cf0 :\cf8 selectedProject\cf0 ];\
+    \
+    \
+\}\
+\
+\cf3 #pragma mark Save program\
+\cf0 \
+\
+- (\cf9 NSString\cf0  *) pathForDataFile\
+\{\
+    \cf9 NSFileManager\cf0  *fileManager = [\cf9 NSFileManager\cf0  \cf6 defaultManager\cf0 ];\
+    \
+    \cf9 NSString\cf0  *folder = \cf4 @"~/Library/Application Support/Vnote/"\cf0 ;\
+    folder = [folder \cf6 stringByExpandingTildeInPath\cf0 ];\
+    \
+    \cf9 NSURL\cf0  *folderUrl = [\cf9 NSURL\cf0  \cf6 fileURLWithPath\cf0 :folder];\
+    \
+    \cf5 if\cf0  ([fileManager \cf6 fileExistsAtPath\cf0 : folder] == \cf5 NO\cf0 )\
+    \{\
+        [fileManager \cf6 createDirectoryAtURL\cf0 :folderUrl\
+              \cf6 withIntermediateDirectories\cf0 :\cf5 YES\cf0 \
+                               \cf6 attributes\cf0 :\cf5 Nil\cf0  \cf6 error\cf0 :\cf5 Nil\cf0 ];\
+    \}\
+    \
+    \cf9 NSString\cf0  *fileName = \cf4 @"Vnote.cdcvnote"\cf0 ;\
+    \cf5 return\cf0  [folder \cf6 stringByAppendingPathComponent\cf0 : fileName];\
+\}\
+\
+- (\cf5 void\cf0 ) saveDataToDisk\
+\{\
+    \cf9 NSString\cf0  * path = [\cf5 self\cf0  \cf7 pathForDataFile\cf0 ];\
+    \
+    \cf9 NSMutableDictionary\cf0  * rootObject;\
+    rootObject = [\cf9 NSMutableDictionary\cf0  \cf6 dictionary\cf0 ];\
+    \
+    [rootObject \cf6 setValue\cf0 : [\cf5 self\cf0  \cf7 projectList\cf0 ] \cf6 forKey\cf0 :\cf4 @"projects"\cf0 ];\
+    [\cf9 NSKeyedArchiver\cf0  \cf6 archiveRootObject\cf0 : rootObject \cf6 toFile\cf0 : path];\
+\}\
+\
+- (\cf5 void\cf0 ) loadDataFromDisk\
+\{\
+    \cf9 NSString\cf0      * path        = [\cf5 self\cf0  \cf7 pathForDataFile\cf0 ];\
+    \cf9 NSDictionary\cf0  * rootObject;\
+    \
+    rootObject = [\cf9 NSKeyedUnarchiver\cf0  \cf6 unarchiveObjectWithFile\cf0 :path];\
+    [\cf5 self\cf0  \cf7 setProjectList\cf0 : [rootObject \cf6 valueForKey\cf0 :\cf4 @"projects"\cf0 ]];\
+\
+\}\
+\
+- (\cf5 void\cf0 ) applicationWillTerminate: (\cf9 NSNotification\cf0  *)note\
+\{\
+    [\cf5 self\cf0  \cf7 saveDataToDisk\cf0 ];\
+\}\
+\
+\cf3 #pragma mark Drag and Drop\
+\cf0 \
+- (\cf9 NSDragOperation\cf0 )draggingEntered:(\cf5 id\cf0  <\cf9 NSDraggingInfo\cf0 >)sender\
+\{\
+    \cf5 if\cf0  ((\cf6 NSDragOperationGeneric\cf0  & [sender \cf6 draggingSourceOperationMask\cf0 ])\
+        == \cf6 NSDragOperationGeneric\cf0 )\
+    \{\
+        \cf2 //this means that the sender is offering the type of operation we want\cf0 \
+        \cf2 //return that we want the NSDragOperationGeneric operation that they\cf0 \
+        \cf2 //are offering\cf0 \
+        \cf5 return\cf0  \cf6 NSDragOperationGeneric\cf0 ;\
+    \}\
+    \cf5 else\cf0 \
+    \{\
+        \cf2 //since they aren't offering the type of operation we want, we have\cf0 \
+        \cf2 //to tell them we aren't interested\cf0 \
+        \cf5 return\cf0  \cf6 NSDragOperationNone\cf0 ;\
+    \}\
+\}\
+\
+- (\cf5 BOOL\cf0 )prepareForDragOperation:(\cf5 id\cf0  <\cf9 NSDraggingInfo\cf0 >)sender\
+\{\
+    \cf5 return\cf0  \cf5 YES\cf0 ;\
+\}\
+\
+- (\cf5 BOOL\cf0 )performDragOperation:(\cf5 id\cf0  <\cf9 NSDraggingInfo\cf0 >)sender\
+\{\
+    \cf9 NSPasteboard\cf0  *paste = [sender \cf6 draggingPasteboard\cf0 ];\
+    \cf2 //gets the dragging-specific pasteboard from the sender\cf0 \
+    \cf9 NSArray\cf0  *types = [\cf9 NSArray\cf0  \cf6 arrayWithObjects\cf0 :\cf9 NSTIFFPboardType\cf0 ,\
+                      \cf9 NSFilenamesPboardType\cf0 , \cf5 nil\cf0 ];\
+    \cf2 //a list of types that we can accept\cf0 \
+    \cf9 NSString\cf0  *desiredType = [paste \cf6 availableTypeFromArray\cf0 :types];\
+    \cf9 NSData\cf0  *carriedData = [paste \cf6 dataForType\cf0 :desiredType];\
+    \
+    \cf5 if\cf0  (\cf5 nil\cf0  == carriedData)\
+    \{\
+        \cf2 //the operation failed for some reason\cf0 \
+        \cf6 NSRunAlertPanel\cf0 (\cf4 @"Paste Error"\cf0 , \cf4 @"Sorry, but the past operation failed"\cf0 ,\
+                        \cf5 nil\cf0 , \cf5 nil\cf0 , \cf5 nil\cf0 );\
+        \cf5 return\cf0  \cf5 NO\cf0 ;\
+    \}\
+    \cf5 else\cf0 \
+    \{\
+        \cf2 //the pasteboard was able to give us some meaningful data\cf0 \
+        \cf5 if\cf0  ([desiredType \cf6 isEqualToString\cf0 :\cf9 NSTIFFPboardType\cf0 ])\
+        \{\
+            \cf2 //we have TIFF bitmap data in the NSData object\cf0 \
+            \cf9 NSImage\cf0  *newImage = [[\cf9 NSImage\cf0  \cf6 alloc\cf0 ] \cf6 initWithData\cf0 :carriedData];\
+            [\cf5 self\cf0  setImage:newImage];\
+            [newImage \cf6 release\cf0 ];\
+            \cf2 //we are no longer interested in this so we need to release it\cf0 \
+        \}\
+        \cf5 else\cf0  \cf5 if\cf0  ([desiredType \cf6 isEqualToString\cf0 :\cf9 NSFilenamesPboardType\cf0 ])\
+        \{\
+            \cf2 //we have a list of file names in an NSData object\cf0 \
+            \cf9 NSArray\cf0  *fileArray =\
+            [paste \cf6 propertyListForType\cf0 :\cf4 @"NSFilenamesPboardType"\cf0 ];\
+            \cf2 //be caseful since this method returns id.\cf0 \
+            \cf2 //We just happen to know that it will be an array.\cf0 \
+            \cf9 NSString\cf0  *path = [fileArray \cf6 objectAtIndex\cf0 :\cf10 0\cf0 ];\
+            \cf2 //assume that we can ignore all but the first path in the list\cf0 \
+            \cf9 NSImage\cf0  *newImage = [[\cf9 NSImage\cf0  \cf6 alloc\cf0 ] \cf6 initWithContentsOfFile\cf0 :path];\
+            \
+            \cf5 if\cf0  (\cf5 nil\cf0  == newImage)\
+            \{\
+                \cf2 //we failed for some reason\cf0 \
+                \cf6 NSRunAlertPanel\cf0 (\cf4 @"File Reading Error"\cf0 ,\
+                                [\cf9 NSString\cf0  \cf6 stringWithFormat\cf0 :\
+                                 \cf4 @"Sorry, but I failed to open the file at \\"%@\\""\cf0 ,\
+                                 path], \cf5 nil\cf0 , \cf5 nil\cf0 , \cf5 nil\cf0 );\
+                \cf5 return\cf0  \cf5 NO\cf0 ;\
+            \}\
+            \cf5 else\cf0 \
+            \{\
+                \cf2 //newImage is now a new valid image\cf0 \
+                [\cf5 self\cf0  setImage:newImage];\
+            \}\
+            [newImage \cf6 release\cf0 ];\
+        \}\
+        \cf5 else\cf0 \
+        \{\
+            \cf2 //this can't happen\cf0 \
+            \cf3 NSAssert\cf0 (\cf5 NO\cf0 , \cf4 @"This can't happen"\cf0 );\
+            \cf5 return\cf0  \cf5 NO\cf0 ;\
+        \}\
+    \}\
+    [\cf5 self\cf0  setNeedsDisplay:\cf5 YES\cf0 ];    \cf2 //redraw us with the new image\cf0 \
+    \cf5 return\cf0  \cf5 YES\cf0 ;\
+\}\
+\
+\
+\cf5 @end\cf0 \
+}
