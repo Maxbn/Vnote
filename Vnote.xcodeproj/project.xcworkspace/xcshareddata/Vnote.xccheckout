@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>CCAFD445-1C3A-41C6-A11F-97F5352E3E9A</string>
+	<key>IDESourceControlProjectName</key>
+	<string>Vnote</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>6472C855-4029-492C-9593-8C967BD27973</key>
+		<string>https://github.com/Maxbn/Vnote</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>Vnote.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>6472C855-4029-492C-9593-8C967BD27973</key>
+		<string>../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/Maxbn/Vnote</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>110</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>6472C855-4029-492C-9593-8C967BD27973</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>6472C855-4029-492C-9593-8C967BD27973</string>
+			<key>IDESourceControlWCCName</key>
+			<string>Vnote</string>
+		</dict>
+	</array>
+</dict>
+</plist>
