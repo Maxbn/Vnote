@@ -14,11 +14,11 @@
 #import "Task.h"
 #import "PDFview.h"
 #import "dragView.h"
+#import "myTableView.h"
 
-@interface AppDelegate : NSObject <NSApplicationDelegate, NSTableViewDataSource,NSSplitViewDelegate>{
+@interface AppDelegate : NSObject <NSApplicationDelegate, NSTableViewDataSource,NSSplitViewDelegate,NSTextFieldDelegate>{
     
 
-    
     IBOutlet PDFview *pdfView;
     IBOutlet dragView *myDragView;
     
@@ -31,6 +31,11 @@
 @property (strong,nonatomic)AVPlayerItem *playerItem;
 @property (strong,nonatomic)AVPlayerLayer *playerLayer;
 @property (strong) id playerObserver;
+@property (strong) IBOutlet NSTextField *result;
+@property (strong) NSMutableArray *textCellSize;
+@property BOOL historyShouldBeVisible;
+
+
 
 @property (strong) IBOutlet NSButton *removeTaskButton;
 @property (strong) IBOutlet NSButton *addTaskButton;
@@ -43,10 +48,16 @@
 @property (strong) IBOutlet NSTextField *insertVideoText;
 @property (strong) IBOutlet NSSplitView *verticalSplitView;
 
+@property (strong) IBOutlet NSBox *taskInfoView;
 
+@property (weak) IBOutlet NSTextField *welcomeText;
+@property (weak) IBOutlet NSTextField *editTaskField;
+@property (weak) IBOutlet NSTextField *assignedToLabel;
 
+@property (weak) IBOutlet NSComboBox *assignementBox;
 
-
+@property (weak) IBOutlet NSButton *removeCollaborator;
+@property (weak) IBOutlet NSButton *showHistoryButton;
 
 
 
@@ -56,6 +67,10 @@
 - (IBAction)addTask:(id)sender;
 - (IBAction)removeTask:(id)sender;
 - (IBAction)checkTask:(id)sender;
+- (IBAction)showHistory:(id)sender;
+
+- (IBAction)removeCollaborator:(id)sender;
+
 
 - (IBAction)playVideo:(id)sender;
 - (IBAction)enterFullScreen:(id)sender;
@@ -66,6 +81,10 @@
 - (IBAction)moveOneFrameBackward:(id)sender;
 
 
+//- (IBAction)openInfo:(id)sender;
+
+- (id)comboBox:(NSComboBox *)aComboBox objectValueForItemAtIndex:(NSInteger)index;
+- (NSInteger)numberOfItemsInComboBox:(NSComboBox *)aComboBox;
 
 - (NSString *) pathForDataFile;
 - (void) saveDataToDisk;
@@ -78,11 +97,18 @@
 - (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn
             row:(NSInteger)rowIndex;
 
-- (void)tableView:(NSTableView *)aTableView setObjectValue:(id)anObject forTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex;
 
-- (void)tableViewSelectionDidChange:(NSNotification *)aNotification;
+
 
 - (CGFloat)splitView:(NSSplitView *)splitView constrainMaxCoordinate:(CGFloat)proposedMax ofSubviewAt:(NSInteger)dividerIndex;
 - (CGFloat)splitView:(NSSplitView *)splitView constrainMinCoordinate:(CGFloat)proposedMin ofSubviewAt:(NSInteger)dividerIndex;
+
+
+- (void)controlTextDidEndEditing:(NSNotification *)aNotification;
+
+
+- (void)openInfoPanel;
+
+
 
 @end

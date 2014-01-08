@@ -12,8 +12,15 @@
 @implementation AppDelegate
 @synthesize listTableView,projectTableView,taskEntry,projectList,
 addTaskButton,removeTaskButton,playerView,timeSlider,window,selectedProject,player,playerItem,playerObserver,playerLayer
-,insertVideoText,verticalSplitView;
+,insertVideoText,verticalSplitView,textCellSize,result,taskInfoView,editTaskField,assignedToLabel,assignementBox,removeCollaborator,historyShouldBeVisible;
 
+- (void)awakeFromNib{
+    
+    [assignementBox setStringValue:@"choose"];
+    [listTableView registerForDraggedTypes:[NSArray arrayWithObject:@"Task"]];
+   [addTaskButton setKeyEquivalent:@"\r"];
+    
+}
 
 -(id)init{
     
@@ -25,10 +32,13 @@ addTaskButton,removeTaskButton,playerView,timeSlider,window,selectedProject,play
         
         if (!projectList) {
             projectList = [[NSMutableArray alloc]init];
+            textCellSize = [[NSMutableArray alloc]init];
         }
         
-        
+        [[editTaskField cell]setLineBreakMode:NSLineBreakByWordWrapping];
         [taskEntry setEnabled:NO];
+        historyShouldBeVisible = NO;
+        
         
 
         
@@ -83,50 +93,53 @@ addTaskButton,removeTaskButton,playerView,timeSlider,window,selectedProject,play
     
 
     //    Gets the time of the video
-    
-    CMTime videoTime = player.currentTime;
-    NSUInteger videoTimeCode = CMTimeGetSeconds(videoTime);
-    
-    //    Gets the task name from the textField
-    NSString *taskName = [taskEntry stringValue];
-    
-    //    Checks if the textfield or the selection is empty
-    if ([taskName length] == 0 || [taskEntry.stringValue isEqual: @" "]) {
+    if ([[sender identifier]isEqualToString:@"addTaskButton"]) {
+        CMTime videoTime = player.currentTime;
+        NSUInteger videoTimeCode = CMTimeGetSeconds(videoTime);
+        
+        //    Gets the task name from the textField
+        NSString *taskName = [taskEntry stringValue];
+        
+        //    Checks if the textfield or the selection is empty
+        if ([taskName length] == 0 || [taskEntry.stringValue isEqual: @" "]) {
+            [taskEntry setStringValue:@""];
+            [taskEntry setEnabled:NO];
+            [player play];
+            return;
+        }else if ([projectTableView selectedRow] ==-1){
+            return;
+        }
+        
+        
+        //    Sets up the task
+        
+        Task *newTask =  [[Task alloc]init];
+        newTask.taskName = taskName;
+        newTask.taskTime = videoTimeCode;
+        newTask.timeCode = videoTime;
+        [newTask setformatedTime:videoTimeCode];
+        
+        newTask.checked = [[NSButton alloc]init];
+        [newTask.checked setButtonType:NSSwitchButton];
+        [newTask.checked setTitle:@""];
+        [newTask.checked setTag:[selectedProject.toDoList count]];
+        SEL aSelector = @selector(checkTask:);
+        [newTask.checked setAction:aSelector];
+        
+        [selectedProject.toDoList addObject:newTask];
+        
+        [listTableView reloadData];
         [taskEntry setStringValue:@""];
         [taskEntry setEnabled:NO];
-        [player play];
-        return;
-    }else if ([projectTableView selectedRow] ==-1){
-        return;
+        
     }
     
-//    Sets up the task
-    
-    Task *newTask =  [[Task alloc]init];
-    newTask.taskName = taskName;
-    newTask.taskTime = videoTimeCode;
-    newTask.timeCode = videoTime;
-    [newTask setformatedTime:videoTimeCode];
-    
-    newTask.checked = [[NSButton alloc]init];
-    [newTask.checked setButtonType:NSSwitchButton];
-    [newTask.checked setTitle:@""];
-    [newTask.checked setTag:[selectedProject.toDoList count]];
-    SEL aSelector = @selector(checkTask:);
-    [newTask.checked setAction:aSelector];
-    
-    [selectedProject.toDoList addObject:newTask];
-
-    [listTableView reloadData];
-    [taskEntry setStringValue:@""];
-    [taskEntry setEnabled:NO];
-    
-    NSString *timeDesc = (__bridge NSString *)CMTimeCopyDescription(NULL, self.player.currentTime);
-    NSLog(@"Description of currentTime: %@", timeDesc);
-    
-    
+  
+   
     
 }
+
+
 
 - (IBAction)addProject:(id)sender {
     
@@ -173,13 +186,18 @@ addTaskButton,removeTaskButton,playerView,timeSlider,window,selectedProject,play
         return;
     }
     
-    //    Revmoes and reload
+    //    Removes and reload
     
     [projectList removeObjectAtIndex:[projectTableView selectedRow]];
     [projectTableView deselectRow:[projectTableView selectedRow]];
     [projectTableView reloadData];
-    [player replaceCurrentItemWithPlayerItem:Nil];
-      [self selectLastAddedproject];
+    
+    if ([projectList count] == 0) {
+        [player replaceCurrentItemWithPlayerItem:Nil];
+    }
+
+    [self selectLastAddedproject];
+//    [editTaskField setEnabled:NO];
     [insertVideoText setAlphaValue:1.0];
     
     
@@ -192,8 +210,16 @@ addTaskButton,removeTaskButton,playerView,timeSlider,window,selectedProject,play
     }
     
     //    Gets the selected Project
+    
+    
+    
     Project *projectToDeleteFrom = [projectList objectAtIndex:[projectTableView selectedRow]];
-    [projectToDeleteFrom.toDoList removeObjectAtIndex:[listTableView selectedRow]];
+    Task *taskForHistory = [selectedProject.toDoList objectAtIndex:[listTableView selectedRow]];
+    
+    [selectedProject.taskHistory addObject:taskForHistory];
+    
+    [projectToDeleteFrom.toDoList removeObjectsAtIndexes:[listTableView selectedRowIndexes]];
+    
     [projectList replaceObjectAtIndex:[projectTableView selectedRow] withObject:projectToDeleteFrom];
     [listTableView deselectRow:[listTableView selectedRow]];
     
@@ -235,31 +261,92 @@ addTaskButton,removeTaskButton,playerView,timeSlider,window,selectedProject,play
 
 - (IBAction)checkTask:(id)sender{
     
-//    NSLog(@"task Checked");
     NSUInteger tag = [sender tag];
-    Task *checkedTask = [selectedProject.toDoList objectAtIndex:tag];
+    
+    Task *checkedTask = [[Task alloc]init];
+    
+    if (historyShouldBeVisible) {
+        checkedTask = [selectedProject.taskHistory objectAtIndex:tag];
+
+    }else{
+        checkedTask = [selectedProject.toDoList objectAtIndex:tag];
+
+    }
     
     checkedTask.done = (!checkedTask.done);
+    
+    if (checkedTask.done == YES) {
+        [selectedProject.taskHistory addObject:checkedTask];
+        [selectedProject.toDoList removeObjectAtIndex:tag];
+        
+    } else if (checkedTask.done == NO) {
+        [selectedProject.toDoList addObject:checkedTask];
+        [selectedProject.taskHistory removeObjectAtIndex:tag];
+    }
+    
+    [listTableView reloadData];
+
+    
+}
+
+- (IBAction)showHistory:(id)sender {
+    
+    historyShouldBeVisible = !historyShouldBeVisible;
+    
     [listTableView reloadData];
 }
+
+- (IBAction)removeCollaborator:(id)sender {
+    
+    NSString *personToRemove = [assignementBox stringValue];
+    NSUInteger personIndex =[assignementBox indexOfItemWithObjectValue:personToRemove];
+    [selectedProject.collaborators removeObjectAtIndex:personIndex];
+    
+    NSString *personInCharge = [[selectedProject.toDoList objectAtIndex:[listTableView selectedRow]] assignedTo];
+    if ([personInCharge isEqualToString:personToRemove]) {
+        [[selectedProject.toDoList objectAtIndex:[listTableView selectedRow]] setAssignedTo:nil];
+    }
+    
+    for (Task* task in selectedProject.toDoList){
+        
+        if ([task.assignedTo isEqualToString:personToRemove]) {
+            task.assignedTo = nil;
+        }
+    }
+
+    
+    [assignementBox removeAllItems];
+    [assignementBox addItemsWithObjectValues:selectedProject.collaborators];
+    [assignementBox setStringValue:@" "];
+}
+
 
 - (IBAction)exportPDF:(id)sender {
     
     //   Create an array with the requested frames
     if ([projectTableView selectedRow] !=-1) {
-        Project *projectToExport = [projectList objectAtIndex:[projectTableView selectedRow]];
+        Project *projectToExport = self.selectedProject;
         NSMutableArray *framesToExport = [NSMutableArray array];
         NSMutableArray *captionToExport = [NSMutableArray array];
+        NSMutableArray *timeCodesToExport = [NSMutableArray array];
+        NSMutableArray *assignementsToExport = [NSMutableArray array];
         
         if (projectToExport) {
             for ( Task * taskToExport in projectToExport.toDoList) {
                 AVAsset *myAsset = [AVAsset assetWithURL:projectToExport.videoUrl];
                 AVAssetImageGenerator *imageGenerator = [[AVAssetImageGenerator alloc]initWithAsset:myAsset];
                 
+                CGSize maxSize = CGSizeMake(602, 601);
+                imageGenerator.maximumSize = maxSize;
+                imageGenerator.requestedTimeToleranceAfter = kCMTimeZero;
+                imageGenerator.requestedTimeToleranceBefore = kCMTimeZero;
+                
                 NSError *error;
-                CMTime actualTime;
                 CMTime captureTime = taskToExport.timeCode;
-                CGImageRef frame = [imageGenerator copyCGImageAtTime:captureTime actualTime:&actualTime error:&error];
+                
+                
+                CGImageRef frame = [imageGenerator copyCGImageAtTime:captureTime actualTime:nil error:&error];
+                
                 
                 if(frame != NULL){
                     
@@ -267,7 +354,13 @@ addTaskButton,removeTaskButton,playerView,timeSlider,window,selectedProject,play
                     CGImageRelease(frame);
                 }
                 
+                if (taskToExport.assignedTo == Nil) {
+                    taskToExport.assignedTo = @" ";
+                }
+                
                 [captionToExport addObject:taskToExport.taskName];
+                [timeCodesToExport addObject:taskToExport.formatedTime];
+                [assignementsToExport addObject:taskToExport.assignedTo];
             }
             
         }
@@ -307,6 +400,8 @@ addTaskButton,removeTaskButton,playerView,timeSlider,window,selectedProject,play
             pdfView.pageSize = NSMakeSize(1920, 1080);
             pdfView.frames = framesToExport;
             pdfView.captions = captionToExport;
+            pdfView.timeCodes = timeCodesToExport;
+            pdfView.assignements = assignementsToExport;
             
             if(pdfView.frameCount > 6 && pdfView.frameCount < 13){
                 pageNumber = 2;
@@ -325,7 +420,6 @@ addTaskButton,removeTaskButton,playerView,timeSlider,window,selectedProject,play
             [printInfo setLeftMargin:0];
             [printInfo setRightMargin:0];
             [printInfo setTopMargin:0];
-            
             
             
             
@@ -375,6 +469,14 @@ addTaskButton,removeTaskButton,playerView,timeSlider,window,selectedProject,play
     [player pause];
     [playerItem stepByCount:-1];
 }
+
+//- (IBAction)openInfo:(id)sender {
+//   infoButton *button = (infoButton *)sender;
+//    NSLog(@"%ld",(long)button.index);
+//}
+
+
+
 
 -(void)dragNewProject:(NSURL *)draggedUrl{
     
@@ -451,14 +553,14 @@ addTaskButton,removeTaskButton,playerView,timeSlider,window,selectedProject,play
         selectedProject = [projectList objectAtIndex:[projectTableView selectedRow]];
     }
     
-    
-    
-    
     //    Turns ON or OFF the buttons
     if (selectedProject != nil){
+        
+        [taskInfoView setHidden:YES];
         [addTaskButton setEnabled:YES];
-    }else if (selectedProject == nil){
+    }else if (selectedProject == nil || ![editTaskField isHidden]){
         [addTaskButton setEnabled:NO];
+        
         
     }
     
@@ -467,6 +569,9 @@ addTaskButton,removeTaskButton,playerView,timeSlider,window,selectedProject,play
     }else if ([listTableView selectedRow] == -1){
         [removeTaskButton setEnabled:NO];
     }
+    
+    
+ 
     
     //    Plays the right video
     
@@ -506,7 +611,12 @@ addTaskButton,removeTaskButton,playerView,timeSlider,window,selectedProject,play
         //    Sets up the time slider
         
         timeSlider.minValue = 0;
-        timeSlider.maxValue = CMTimeGetSeconds(playerItem.duration);
+        NSNumber *number = [NSNumber numberWithFloat:CMTimeGetSeconds(playerItem.asset.duration)];
+        
+        NSUInteger maxValue = [number doubleValue];
+
+
+        timeSlider.maxValue =  maxValue;
         
         
     }
@@ -520,7 +630,8 @@ addTaskButton,removeTaskButton,playerView,timeSlider,window,selectedProject,play
             
             Task *selectedTask = [selectedProject.toDoList objectAtIndex:[listTableView selectedRow]];
             
-            [player seekToTime:selectedTask.timeCode];
+//            [player seekToTime:selectedTask.timeCode];
+            [player seekToTime:selectedTask.timeCode toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero];
             [player pause];
 //            [listTableView reloadData];
         }
@@ -536,6 +647,7 @@ addTaskButton,removeTaskButton,playerView,timeSlider,window,selectedProject,play
         
          [listTableView reloadData];
     }
+    
        
    
 }
@@ -550,10 +662,15 @@ addTaskButton,removeTaskButton,playerView,timeSlider,window,selectedProject,play
             
             return 0;
         }
-        
-        
         Project *projectToDisplay = [projectList objectAtIndex:[projectTableView selectedRow]];
-        return [projectToDisplay.toDoList count];
+
+        if (historyShouldBeVisible) {
+            return [projectToDisplay.taskHistory count];
+
+        }else{
+            return [projectToDisplay.toDoList count];
+
+        }
     }
     
     //    For the Projects
@@ -574,19 +691,31 @@ addTaskButton,removeTaskButton,playerView,timeSlider,window,selectedProject,play
 
 
 {
-    NSTextField *result = [tableView makeViewWithIdentifier:@"MyView" owner:self];
+    
+    
+    result = [tableView makeViewWithIdentifier:@"MyView" owner:self];
+    
+
+    
     [result setBordered:NO];
     [[result cell] setLineBreakMode:NSLineBreakByTruncatingTail];
     [[result cell]setBackgroundColor:[NSColor clearColor]];
     [[result cell] setTruncatesLastVisibleLine:NO];
     [result setFocusRingType:NSFocusRingTypeNone];
     [tableView setSelectionHighlightStyle:NSTableViewSelectionHighlightStyleRegular];
+    
+    if (historyShouldBeVisible) {
+        [listTableView setAlphaValue:0.2];
+    }else{
+        [listTableView setAlphaValue:1];
+
+    }
 
 
 
     if(tableView == listTableView){
         
-        [tableView setRowHeight:22];
+        
         
         NSString *columnIdentifer = [tableColumn identifier];
         
@@ -598,68 +727,42 @@ addTaskButton,removeTaskButton,playerView,timeSlider,window,selectedProject,play
             // the new text field is then returned as an autoreleased object
             
             NSRect frame = NSMakeRect(0, 0, tableView.frame.size.width, 0);
+            
+//            openInfoButton = [[infoButton alloc]init];
+//            [openInfoButton setIndex:row];
+//            [openInfoButton setAction:@selector(openInfo:)];
+            
             result = [[NSTextField alloc]initWithFrame:frame];
+            [result setDelegate:self];
             [result setBordered:NO];
             
             result.identifier = @"MyView";
         }
                 
-            
-            //        Checks if a project is selected
-        if (selectedProject == nil) {
-                if ([columnIdentifer isEqualToString:@"taskName"]) {
-                    
-                    result.stringValue = @"select a project";
-                    return result;
-                    
-                }else if ([columnIdentifer isEqualToString:@"timeCode"]) {
-                    
-                    result.stringValue = @"select a project";
-                    return result;
-                }
-                
-            }
-            
-            //      Gets the selected project
             //      Populates the name column
             if ([columnIdentifer isEqualToString:@"taskName"]) {
                 
-                NSMutableArray *taskList = [selectedProject.toDoList valueForKey:@"taskName"];
-                NSMutableArray *checkList = selectedProject.toDoList;
-                if ([taskList count] == 0) {
-                    return 0;
-                }
-                
-                NSString *theName = [taskList objectAtIndex:row];
-                
-                result.stringValue = theName;
-                [[result cell]setBackgroundColor:[NSColor clearColor]];
-                Task *task = [checkList objectAtIndex:row];
-                
-                if (task.done == YES) {
-                    result.alphaValue = 0.2;
-                }else if (task.done == NO) {
-                    result.alphaValue = 1;
-                }
-                
-                [result setEditable:YES];
-                return result;
-                NSLog(@"Populated the taskName Column");
-                
-            }
-        
-            //      Populates the Time Code column
-            else if ([columnIdentifer isEqualToString:@"timeCode"]){
-            
-                NSMutableArray *taskList = [selectedProject.toDoList valueForKey:@"formatedTime"];
-                NSMutableArray *timeList = selectedProject.toDoList;
-                
-                if ([taskList count] != 0) {
-                    NSString *timeCode = [taskList objectAtIndex:row];
-                    result.stringValue = timeCode;
-                    [[result cell]setBackgroundColor:[NSColor clearColor]];
+                if (historyShouldBeVisible) {
                     
-                    Task *task = [timeList objectAtIndex:row];
+                    [[result cell] setLineBreakMode:NSLineBreakByTruncatingTail];
+                    
+                    NSMutableArray *taskList = [selectedProject.taskHistory valueForKey:@"taskName"];
+                    NSMutableArray *checkList = selectedProject.taskHistory;
+                    if ([taskList count] == 0) {
+                        return 0;
+                    }
+                    
+                    //                Sets the font and size
+                    NSString *theName = [taskList objectAtIndex:row];
+                    NSMutableDictionary *attributes = [[NSMutableDictionary alloc] init];
+                    NSFont *font = [NSFont fontWithName:@"Arial" size:19];
+                    [attributes setObject:font forKey:NSFontAttributeName];
+                    
+                    
+                    result.stringValue = theName;
+                    [[result cell]setBackgroundColor:[NSColor clearColor]];
+                    Task *task = [checkList objectAtIndex:row];
+                    
                     
                     if (task.done == YES) {
                         result.alphaValue = 0.2;
@@ -667,42 +770,183 @@ addTaskButton,removeTaskButton,playerView,timeSlider,window,selectedProject,play
                         result.alphaValue = 1;
                     }
                     
+                    [result setEditable:NO];
+                    
+                    
+                    
+                    
+                    
+                    //                [[result cell]setDoubleAction:@selector(openInfoPanel)];
+                    [tableView setDoubleAction:@selector(openInfoPanel)];
+                    
                     return result;
+                    NSLog(@"Populated the taskName Column");
+                    
+                }else{
+                    
+                    [[result cell] setLineBreakMode:NSLineBreakByTruncatingTail];
+                    
+                    
+                    NSMutableArray *taskList = [selectedProject.toDoList valueForKey:@"taskName"];
+                    NSMutableArray *checkList = selectedProject.toDoList;
+                    if ([taskList count] == 0) {
+                        return 0;
+                    }
+                    
+                    //                Sets the font and size
+                    NSString *theName = [taskList objectAtIndex:row];
+                    NSMutableDictionary *attributes = [[NSMutableDictionary alloc] init];
+                    NSFont *font = [NSFont fontWithName:@"Arial" size:19];
+                    [attributes setObject:font forKey:NSFontAttributeName];
+                    
+                    
+                    result.stringValue = theName;
+                    [[result cell]setBackgroundColor:[NSColor clearColor]];
+                    Task *task = [checkList objectAtIndex:row];
+                    
+                    
+                    if (task.done == YES) {
+                        result.alphaValue = 0.2;
+                    }else if (task.done == NO) {
+                        result.alphaValue = 1;
+                    }
+                    
+                    [result setEditable:NO];
+                    
+               
+                    [tableView setDoubleAction:@selector(openInfoPanel)];
+                    
+                    return result;
+                    NSLog(@"Populated the taskName Column");
+                    
                 }
+                
+
+            
+    
+            }
+        
+            //      Populates the Time Code column
+            else if ([columnIdentifer isEqualToString:@"timeCode"]){
+                
+                if (historyShouldBeVisible) {
+                    
+                    NSMutableArray *taskList = [selectedProject.taskHistory valueForKey:@"formatedTime"];
+                    NSMutableArray *timeList = selectedProject.taskHistory;
+                    
+                    if ([taskList count] != 0) {
+                        NSString *timeCode = [taskList objectAtIndex:row];
+                        result.stringValue = timeCode;
+                        [[result cell]setBackgroundColor:[NSColor clearColor]];
+                        
+                        Task *task = [timeList objectAtIndex:row];
+                        
+                        if (task.done == YES) {
+                            [result setAlphaValue:0.2];
+                            //                        result.alphaValue = 0.2;
+                        }else if (task.done == NO) {
+                            result.alphaValue = 1;
+                        }
+                        
+                        [tableView setRowHeight:22];
+                        [result setEditable:NO];
+                        
+                        return result;
+                    }
+
+                    
+                }else{
+                    NSMutableArray *taskList = [selectedProject.toDoList valueForKey:@"formatedTime"];
+                    NSMutableArray *timeList = selectedProject.toDoList;
+                    
+                    if ([taskList count] != 0) {
+                        NSString *timeCode = [taskList objectAtIndex:row];
+                        result.stringValue = timeCode;
+                        [[result cell]setBackgroundColor:[NSColor clearColor]];
+                        
+                        Task *task = [timeList objectAtIndex:row];
+                        
+                        if (task.done == YES) {
+                            [result setAlphaValue:0.2];
+                            //                        result.alphaValue = 0.2;
+                        }else if (task.done == NO) {
+                            result.alphaValue = 1;
+                        }
+
+                        [tableView setRowHeight:22];
+                        [result setEditable:NO];
+                        
+                        return result;
+                    }
+
+                }
+            
                 
                 NSLog(@"Populated the timeCode Column");
                 
                 
-            }else if ([columnIdentifer isEqualToString:@"checkBox"]){
+            }
+            else if ([columnIdentifer isEqualToString:@"checkBox"]){
                 
-                NSMutableArray *checkBoxList = [selectedProject.toDoList valueForKey:@"checked"];
-                NSMutableArray *boxList = selectedProject.toDoList;
-
-                
-                if ([checkBoxList count] != 0) {
-                    NSButton *checkBox = [checkBoxList objectAtIndex:row];
+                if (historyShouldBeVisible) {
                     
-                    Task *task = [boxList objectAtIndex:row];
                     
-                    if (task.done == YES) {
-                        checkBox.alphaValue = 0.2;
-                    }else if (task.done == NO) {
-                        checkBox.alphaValue = 1;
+                    NSMutableArray *checkBoxList = [selectedProject.taskHistory valueForKey:@"checked"];
+                    NSMutableArray *boxList = selectedProject.taskHistory;
+                    
+                    
+                    if ([checkBoxList count] != 0) {
+                        NSButton *checkBox = [checkBoxList objectAtIndex:row];
+                        [checkBox setAction:@selector(checkTask:)];
+                        
+                        Task *task = [boxList objectAtIndex:row];
+                        [checkBox setTag:row];
+                        
+                        if (task.done == YES) {
+                            checkBox.alphaValue = 0.2;
+                        }else if (task.done == NO) {
+                            checkBox.alphaValue = 1;
+                        }
+                        
+                        
+                        return checkBox;
                     }
+                }else{
+                    
+                    NSMutableArray *checkBoxList = [selectedProject.toDoList valueForKey:@"checked"];
+                    NSMutableArray *boxList = selectedProject.toDoList;
                     
                     
-                    return checkBox;
-                }           
+                    if ([checkBoxList count] != 0) {
+                        NSButton *checkBox = [checkBoxList objectAtIndex:row];
+                        [checkBox setAction:@selector(checkTask:)];
+                        
+                        Task *task = [boxList objectAtIndex:row];
+                        [checkBox setTag:row];
+                        
+                        if (task.done == YES) {
+                            checkBox.alphaValue = 0.2;
+                        }else if (task.done == NO) {
+                            checkBox.alphaValue = 1;
+                        }
+                        
+                        
+                        return checkBox;
+                    
+                }
+                
+            }
             }
             
             return 0;
             
-        }
+       
         
         //    for the project views
-        else if (tableView == projectTableView){
+    }else if (tableView == projectTableView){
             
             [tableView setRowHeight:23];
+            
             [result setBordered:NO];
             
             if (result == nil)
@@ -715,7 +959,7 @@ addTaskButton,removeTaskButton,playerView,timeSlider,window,selectedProject,play
                 NSRect frame = NSMakeRect(0, 0, tableView.frame.size.width, 0);
                 
                 result = [[NSTextField alloc]initWithFrame:frame];
-                [result setEditable:NO];
+                
                 [result setBordered:NO];
                 
                 result.identifier = @"MyView";
@@ -728,10 +972,12 @@ addTaskButton,removeTaskButton,playerView,timeSlider,window,selectedProject,play
             NSString *projectName = [projectNameList objectAtIndex:row ];
             [[result cell] setLineBreakMode:NSLineBreakByTruncatingTail];
             [[result cell]setBackgroundColor:[NSColor clearColor]];
+            [result setEditable:NO];
             
             result.stringValue = projectName;
             
             return result;
+        
             NSLog(@"Pupulated the Project Column");
             
             
@@ -740,19 +986,61 @@ addTaskButton,removeTaskButton,playerView,timeSlider,window,selectedProject,play
         return 0;
         
        
+ }
+
+
+
+//Makes the task editable
+- (void)controlTextDidEndEditing:(NSNotification *)aNotification{
+    
+    [addTaskButton setEnabled:NO];
+
+    
+    NSTextField *newTextField = (NSTextField *)[aNotification object];
+    NSString *newValue = newTextField.stringValue;
+    
+    
+  
+    
+    [addTaskButton setEnabled:NO];
+    
+    
+    
+    if (newTextField == editTaskField) {
+        NSUInteger index = [listTableView selectedRow];
+        [[selectedProject.toDoList objectAtIndex:[listTableView selectedRow]] setTaskName:newValue];
+
+        [listTableView reloadData];
+        NSIndexSet *selectedRowIndex = [NSIndexSet indexSetWithIndex: index];
+        [listTableView selectRowIndexes:selectedRowIndex byExtendingSelection:NO];
+        
+        [self openInfoPanel];
+
+    }else if (newTextField == assignementBox){
+        NSArray *listOfNames = [assignementBox objectValues];
+        
+        NSString * personName = assignementBox.stringValue;
+        
+        if ([personName isEqualToString:@" "]) {
+            return;
+        }
+        
+        if (![listOfNames containsObject:personName]) {
+            [assignementBox addItemWithObjectValue:personName];
+            selectedProject.collaborators = [NSMutableArray arrayWithArray:[assignementBox objectValues]];
+        }
+        
+        [[selectedProject.toDoList objectAtIndex:[listTableView selectedRow]] setAssignedTo:personName];
+
+        
+        
+        
+    }
+ 
+    
 }
 
 
-//Makes the project names editable
-- (void)tableView:(NSTableView *)aTableView setObjectValue:(id)anObject forTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex{
-    
-    //    Gets the selected row changes its name property and puts in back in
-
-    selectedProject.projectName = anObject;
-    [projectList replaceObjectAtIndex:rowIndex withObject:selectedProject];
-    
-    
-}
 
 #pragma mark Save program
 
@@ -824,5 +1112,120 @@ addTaskButton,removeTaskButton,playerView,timeSlider,window,selectedProject,play
     
     return proposedMin;
 }
+
+
+-(void)openInfoPanel{
+    
+//    Turns on the appopriate button (Make simpler with a box)
+    
+    
+    [editTaskField setHidden:NO];
+    [assignedToLabel setHidden:NO];
+    [assignementBox setHidden:NO];
+    [removeCollaborator setHidden:NO];
+    
+//    Disables the video player
+    
+    playerItem = [AVPlayerItem playerItemWithAsset:Nil];
+    [player replaceCurrentItemWithPlayerItem:playerItem];
+    
+//    Fills the textfied with the task name
+    
+    NSString *newStringValue = [[selectedProject.toDoList objectAtIndex:[listTableView selectedRow]] taskName];
+    editTaskField.stringValue = newStringValue ;
+    [taskInfoView setHidden:NO];
+    
+//    Fills the combobox with the values
+    
+    if ([assignementBox objectValues] != selectedProject.collaborators) {
+        
+        [assignementBox removeAllItems];
+        [assignementBox addItemsWithObjectValues:selectedProject.collaborators];
+
+    }
+    
+//    Displays the person it's assigned to
+    
+    NSString *personInCharge = [[selectedProject.toDoList objectAtIndex:[listTableView selectedRow]] assignedTo];
+    
+    if (personInCharge != Nil) {
+        
+        [assignementBox setStringValue:personInCharge];
+
+    }else{
+        
+        [assignementBox setStringValue:@" "];
+    }
+
+    
+    [addTaskButton setEnabled:NO];
+
+    
+}
+
+#pragma mark Combo Box
+
+- (NSInteger)numberOfItemsInComboBox:(NSComboBox *)aComboBox{
+    
+    return [selectedProject.collaborators count];
+}
+
+- (id)comboBox:(NSComboBox *)aComboBox objectValueForItemAtIndex:(NSInteger)index{
+    
+    return [selectedProject.collaborators objectAtIndex:index];
+}
+
+#pragma mark Tableview reordering
+- (BOOL)tableView:(NSTableView *)tv writeRowsWithIndexes:(NSIndexSet *)rowIndexes toPasteboard:(NSPasteboard*)pboard {
+      // Drag and drop support
+       NSData *data = [NSKeyedArchiver archivedDataWithRootObject:rowIndexes];
+      [pboard declareTypes:[NSArray arrayWithObject:@"Task"] owner:self];
+      [pboard setData:data forType:@"Task"];
+     return YES;
+}
+
+- (NSDragOperation)tableView:(NSTableView*)tv validateDrop:(id )info proposedRow:(int)row proposedDropOperation:(NSTableViewDropOperation)op {
+    // Add code here to validate the drop
+    
+     return NSDragOperationEvery;
+}
+
+- (BOOL)tableView:(NSTableView*)tv acceptDrop:(id )info row:(int)row dropOperation:(NSTableViewDropOperation)op {
+
+    NSPasteboard *pboard = [info draggingPasteboard];
+    NSData *data = [pboard dataForType:@"Task"];
+    NSIndexSet* rowIndexes = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+    
+    NSUInteger from = [rowIndexes firstIndex];
+    
+    Task *newTask = [selectedProject.toDoList objectAtIndex:from];
+    
+    [selectedProject.toDoList removeObjectAtIndex:from];
+    
+    if (row > [selectedProject.toDoList count]) {
+        
+//        [newTask.checked setTag:(row-1)];
+        [selectedProject.toDoList addObject:newTask];
+        
+    }else{
+        [selectedProject.toDoList insertObject:newTask atIndex:row];
+        [newTask.checked setTag:row];
+        
+    }
+    
+    
+    
+    [listTableView reloadData];
+    
+    
+    
+//   [selectedProject.toDoList insertObject:movedTask atIndex:row];
+//    [listTableView reloadData];
+
+    
+    return YES;
+}
+
+
 
 @end

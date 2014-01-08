@@ -25,4 +25,11 @@
     // Drawing code here.
 }
 
+
+- (void)textDidEndEditing:(NSNotification *)aNotification{
+    
+//    [super textDidEndEditing:aNotification];
+//    NSLog(@"YALAAAAAAA");
+}
+
 @end

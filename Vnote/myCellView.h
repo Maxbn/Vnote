@@ -8,6 +8,16 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface myCellView : NSTableCellView
+@interface myCellView : NSTableCellView <NSTextFieldDelegate>
 
+@property BOOL editing;
+@property IBOutlet NSTextField *taskName;
+
+- (BOOL)control:(NSControl*)control textShouldBeginEditing:(NSText *)fieldEditor;
+
+- (BOOL)control:(NSControl *)control textShouldEndEditing:(NSText *)fieldEditor;
+
+
+
+- (void)textDidEndEditing:(NSNotification *)aNotification;
 @end

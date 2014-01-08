@@ -10,4 +10,7 @@
 
 @interface myTableView : NSTableView
 
+
+- (void)textDidEndEditing:(NSNotification *)aNotification;
+
 @end

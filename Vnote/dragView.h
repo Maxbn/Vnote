@@ -9,7 +9,7 @@
 #import <Cocoa/Cocoa.h>
 
 
-@interface dragView : NSView
+@interface dragView : NSView <NSDraggingDestination>
 
 
 
