@@ -16,6 +16,7 @@ addTaskButton,removeTaskButton,playerView,timeSlider,window,selectedProject,play
 
 - (void)awakeFromNib{
     
+    NSLog(@"this test the rollback on git");
     [assignementBox setStringValue:@"choose"];
     [listTableView registerForDraggedTypes:[NSArray arrayWithObject:@"Task"]];
    [addTaskButton setKeyEquivalent:@"\r"];
