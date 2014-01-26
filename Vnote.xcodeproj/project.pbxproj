@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		5059FC4117C2FBA000889444 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5059FC4017C2FBA000889444 /* Cocoa.framework */; };
 		5059FC4B17C2FBA000889444 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5059FC4917C2FBA000889444 /* InfoPlist.strings */; };
 		5059FC4D17C2FBA000889444 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 5059FC4C17C2FBA000889444 /* main.m */; };
 		5059FC5117C2FBA000889444 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 5059FC4F17C2FBA000889444 /* Credits.rtf */; };
@@ -18,9 +17,12 @@
 		5059FC6517C3024C00889444 /* Task.m in Sources */ = {isa = PBXBuildFile; fileRef = 5059FC6217C3024C00889444 /* Task.m */; };
 		5059FC6817C3028400889444 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5059FC6717C3028400889444 /* QuartzCore.framework */; };
 		5059FC6A17C3028C00889444 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5059FC6917C3028C00889444 /* CoreMedia.framework */; };
-		5059FC6C17C3029D00889444 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5059FC6B17C3029D00889444 /* AVFoundation.framework */; };
 		5059FC6E17C3185300889444 /* AppDelegate in Resources */ = {isa = PBXBuildFile; fileRef = 5059FC6D17C3185300889444 /* AppDelegate */; };
 		507369FC17D63D9E00EE6248 /* dragView.m in Sources */ = {isa = PBXBuildFile; fileRef = 507369FB17D63D9E00EE6248 /* dragView.m */; };
+		5090F02D1895B72500717B1B /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5059FC6B17C3029D00889444 /* AVFoundation.framework */; };
+		5090F02F1895B78400717B1B /* AVKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5090F02E1895B78400717B1B /* AVKit.framework */; };
+		5090F0301895B7AB00717B1B /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5059FC4017C2FBA000889444 /* Cocoa.framework */; };
+		50BD8C831886E53A00403538 /* playerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 50BD8C821886E53A00403538 /* playerView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -49,6 +51,9 @@
 		5059FC6D17C3185300889444 /* AppDelegate */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = AppDelegate; path = "../../../Dropbox/Maxb'n/AppDelegate"; sourceTree = "<group>"; };
 		507369FA17D63D9E00EE6248 /* dragView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dragView.h; sourceTree = "<group>"; };
 		507369FB17D63D9E00EE6248 /* dragView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = dragView.m; sourceTree = "<group>"; };
+		5090F02E1895B78400717B1B /* AVKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVKit.framework; path = System/Library/Frameworks/AVKit.framework; sourceTree = SDKROOT; };
+		50BD8C811886E53A00403538 /* playerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = playerView.h; sourceTree = "<group>"; };
+		50BD8C821886E53A00403538 /* playerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = playerView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -56,10 +61,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5059FC6C17C3029D00889444 /* AVFoundation.framework in Frameworks */,
+				5090F0301895B7AB00717B1B /* Cocoa.framework in Frameworks */,
+				5090F02F1895B78400717B1B /* AVKit.framework in Frameworks */,
+				5090F02D1895B72500717B1B /* AVFoundation.framework in Frameworks */,
 				5059FC6A17C3028C00889444 /* CoreMedia.framework in Frameworks */,
 				5059FC6817C3028400889444 /* QuartzCore.framework in Frameworks */,
-				5059FC4117C2FBA000889444 /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -86,6 +92,7 @@
 		5059FC3F17C2FBA000889444 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				5090F02E1895B78400717B1B /* AVKit.framework */,
 				5059FC6B17C3029D00889444 /* AVFoundation.framework */,
 				5059FC6917C3028C00889444 /* CoreMedia.framework */,
 				5059FC6717C3028400889444 /* QuartzCore.framework */,
@@ -133,6 +140,8 @@
 		5059FC6617C3025C00889444 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				50BD8C811886E53A00403538 /* playerView.h */,
+				50BD8C821886E53A00403538 /* playerView.m */,
 				507369FA17D63D9E00EE6248 /* dragView.h */,
 				507369FB17D63D9E00EE6248 /* dragView.m */,
 				5059FC5D17C3024C00889444 /* PDFview.h */,
@@ -210,6 +219,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				50BD8C831886E53A00403538 /* playerView.m in Sources */,
 				5059FC4D17C2FBA000889444 /* main.m in Sources */,
 				5059FC5417C2FBA000889444 /* AppDelegate.m in Sources */,
 				5059FC6317C3024C00889444 /* PDFview.m in Sources */,
@@ -275,7 +285,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 			};
@@ -301,7 +311,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				SDKROOT = macosx;
 			};
 			name = Release;
@@ -313,6 +323,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Vnote/Vnote-Prefix.pch";
 				INFOPLIST_FILE = "Vnote/Vnote-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -325,6 +336,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Vnote/Vnote-Prefix.pch";
 				INFOPLIST_FILE = "Vnote/Vnote-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};

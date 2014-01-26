@@ -15,6 +15,8 @@
 #import "PDFview.h"
 #import "dragView.h"
 #import "myTableView.h"
+#import "playerView.h"
+#import <AVKit/AVKit.h>
 
 @interface AppDelegate : NSObject <NSApplicationDelegate, NSTableViewDataSource,NSSplitViewDelegate,NSTextFieldDelegate>{
     
@@ -27,13 +29,18 @@
 
 @property (strong,nonatomic)NSMutableArray *projectList;
 @property (strong) Project *selectedProject;
+
+@property (weak) IBOutlet AVPlayerView *myPlayerView;
 @property (strong) AVPlayer *player;
 @property (strong,nonatomic)AVPlayerItem *playerItem;
 @property (strong,nonatomic)AVPlayerLayer *playerLayer;
 @property (strong) id playerObserver;
+
+
 @property (strong) IBOutlet NSTextField *result;
 @property (strong) NSMutableArray *textCellSize;
 @property BOOL historyShouldBeVisible;
+@property BOOL isFullScreen;
 
 
 
@@ -43,7 +50,7 @@
 @property (strong) IBOutlet NSTableView *projectTableView;
 @property (strong) IBOutlet NSTableView *listTableView;
 @property (strong) IBOutlet NSTextField *taskEntry;
-@property (strong) IBOutlet NSView *playerView;
+
 @property (strong) IBOutlet NSSliderCell *timeSlider;
 @property (strong) IBOutlet NSTextField *insertVideoText;
 @property (strong) IBOutlet NSSplitView *verticalSplitView;
@@ -58,6 +65,7 @@
 
 @property (weak) IBOutlet NSButton *removeCollaborator;
 @property (weak) IBOutlet NSButton *showHistoryButton;
+@property (weak) IBOutlet NSBox *fullScreenPlayerControlBox;
 
 
 
@@ -108,6 +116,8 @@
 
 
 - (void)openInfoPanel;
+
+
 
 
 

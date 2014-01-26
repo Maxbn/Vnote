@@ -11,8 +11,8 @@
 
 @implementation AppDelegate
 @synthesize listTableView,projectTableView,taskEntry,projectList,
-addTaskButton,removeTaskButton,playerView,timeSlider,window,selectedProject,player,playerItem,playerObserver,playerLayer
-,insertVideoText,verticalSplitView,textCellSize,result,taskInfoView,editTaskField,assignedToLabel,assignementBox,removeCollaborator,historyShouldBeVisible;
+addTaskButton,removeTaskButton,myPlayerView,timeSlider,window,selectedProject,player,playerItem,playerObserver,playerLayer
+,insertVideoText,verticalSplitView,textCellSize,result,taskInfoView,editTaskField,assignedToLabel,assignementBox,removeCollaborator,historyShouldBeVisible,isFullScreen;
 
 - (void)awakeFromNib{
     
@@ -39,6 +39,8 @@ addTaskButton,removeTaskButton,playerView,timeSlider,window,selectedProject,play
         [[editTaskField cell]setLineBreakMode:NSLineBreakByWordWrapping];
         [taskEntry setEnabled:NO];
         historyShouldBeVisible = NO;
+        isFullScreen = NO;
+        
         
         
 
@@ -57,20 +59,22 @@ addTaskButton,removeTaskButton,playerView,timeSlider,window,selectedProject,play
     
     player = [AVPlayer playerWithURL:Nil];
     
+    myPlayerView.player = player;
+    
     //        creates a video layer
     
-    [self.playerView setWantsLayer:YES];
-    playerLayer = [AVPlayerLayer playerLayerWithPlayer:player];
-    
-    
-    
-    playerLayer.frame = self.playerView.layer.bounds;
-    [self.playerView.layer addSublayer:playerLayer];
-//    [playerLayer setVideoGravity:AVLayerVideoGravityResizeAspectFill];
-    playerLayer.autoresizingMask = kCALayerWidthSizable |
-    kCALayerHeightSizable;
-    
-    playerItem = [AVPlayerItem playerItemWithAsset:Nil];
+//    [self.myPlayerView setWantsLayer:YES];
+//    playerLayer = [AVPlayerLayer playerLayerWithPlayer:player];
+//    
+//    
+//    
+//    playerLayer.frame = self.myPlayerView.layer.bounds;
+//    [self.myPlayerView.layer addSublayer:playerLayer];
+////    [playerLayer setVideoGravity:AVLayerVideoGravityResizeAspectFill];
+//    playerLayer.autoresizingMask = kCALayerWidthSizable |
+//    kCALayerHeightSizable;
+//    
+//    playerItem = [AVPlayerItem playerItemWithAsset:Nil];
     
     __weak typeof(self) weakSelf = self;
     
@@ -247,17 +251,27 @@ addTaskButton,removeTaskButton,playerView,timeSlider,window,selectedProject,play
 
 - (IBAction)enterFullScreen:(id)sender {
     
-    if (selectedProject != nil && (![playerView isInFullScreenMode])) {
+    if (selectedProject != nil && (![myPlayerView isInFullScreenMode])) {
         NSScreen *screen = [NSScreen mainScreen];
-        [playerView enterFullScreenMode:screen withOptions:nil];
-        [playerView setFrame:screen.visibleFrame ];
+        [myPlayerView enterFullScreenMode:screen withOptions:nil];
+    
+        [[myPlayerView animator]setFrame:[screen frame]];
+        [self.window makeFirstResponder:self.window];
+        
+       
+
+        
+  
+        
     
         }
         
-    else if ([playerView isInFullScreenMode]){
-            [playerView exitFullScreenModeWithOptions:nil];
-        }
-    
+//    else if ([myPlayerView isInFullScreenMode]){
+//            [myPlayerView exitFullScreenModeWithOptions:nil];
+////            [[myPlayerView animator] setFrame:
+//            isFullScreen = NO;
+//        }
+//    
 }
 
 - (IBAction)checkTask:(id)sender{
@@ -1226,6 +1240,9 @@ addTaskButton,removeTaskButton,playerView,timeSlider,window,selectedProject,play
     
     return YES;
 }
+
+#pragma mark Fullscreen Player
+
 
 
 
