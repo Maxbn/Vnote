@@ -16,7 +16,12 @@
     self = [super initWithFrame:frame];
     if (self) {
 
+        NSLog(@"Player View Initiated");
+        
+//        AppDelegate *myApp = (AppDelegate *) [[NSApplication sharedApplication]delegate];
 
+   
+        
         
     }
     return self;
@@ -26,11 +31,13 @@
 {
 	[super drawRect:dirtyRect];
 	
-    if ([self isInFullScreenMode]) {
-        [[NSColor blackColor]setFill];
-         NSRectFill(dirtyRect);
-         [super drawRect:dirtyRect];
-    }
+    [[NSColor blackColor]setFill];
+    NSRectFill(dirtyRect);
+    [super drawRect:dirtyRect];
+    
+//    if ([self isInFullScreenMode]) {
+//       
+//    }
 }
 
 
@@ -41,21 +48,26 @@
 
 
 
--(void)keyDown:(NSEvent *)theEvent{
-    if ([[theEvent characters]isEqualToString:@"e"]) {
-       
-        [self exitFullScreenModeWithOptions:Nil];
+-(BOOL)acceptsFirstMouse:(NSEvent *)theEvent{
+    
+    return YES;
 }
-        else if ([[theEvent characters]isEqualToString:@" "]) {
-           AppDelegate *myApp = (AppDelegate *) [[NSApplication sharedApplication]delegate];
 
-            [myApp playVideo:nil];
-    }
+-(void)keyDown:(NSEvent *)theEvent{
+    
+    [super keyDown:theEvent];
     
 }
+    
+
+    
+-(void)mouseMoved:(NSEvent *)theEvent{
+    
+    NSLog(@"Mouse is moving");
+}
 
 
-//Exits full screen
+    
 
 
 

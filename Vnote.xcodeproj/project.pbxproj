@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		500EBC651896B45600F74FDF /* contentView.m in Sources */ = {isa = PBXBuildFile; fileRef = 500EBC641896B45600F74FDF /* contentView.m */; };
 		5059FC4B17C2FBA000889444 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5059FC4917C2FBA000889444 /* InfoPlist.strings */; };
 		5059FC4D17C2FBA000889444 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 5059FC4C17C2FBA000889444 /* main.m */; };
 		5059FC5117C2FBA000889444 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 5059FC4F17C2FBA000889444 /* Credits.rtf */; };
@@ -26,6 +27,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		500EBC631896B45600F74FDF /* contentView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = contentView.h; sourceTree = "<group>"; };
+		500EBC641896B45600F74FDF /* contentView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = contentView.m; sourceTree = "<group>"; };
 		5059FC3D17C2FBA000889444 /* Vnote.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Vnote.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5059FC4017C2FBA000889444 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		5059FC4317C2FBA000889444 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -140,6 +143,8 @@
 		5059FC6617C3025C00889444 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				500EBC631896B45600F74FDF /* contentView.h */,
+				500EBC641896B45600F74FDF /* contentView.m */,
 				50BD8C811886E53A00403538 /* playerView.h */,
 				50BD8C821886E53A00403538 /* playerView.m */,
 				507369FA17D63D9E00EE6248 /* dragView.h */,
@@ -225,6 +230,7 @@
 				5059FC6317C3024C00889444 /* PDFview.m in Sources */,
 				5059FC6417C3024C00889444 /* Project.m in Sources */,
 				5059FC6517C3024C00889444 /* Task.m in Sources */,
+				500EBC651896B45600F74FDF /* contentView.m in Sources */,
 				507369FC17D63D9E00EE6248 /* dragView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -323,7 +329,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Vnote/Vnote-Prefix.pch";
 				INFOPLIST_FILE = "Vnote/Vnote-Info.plist";
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -336,7 +342,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Vnote/Vnote-Prefix.pch";
 				INFOPLIST_FILE = "Vnote/Vnote-Info.plist";
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};

@@ -16,7 +16,7 @@
 #import "dragView.h"
 #import "myTableView.h"
 #import "playerView.h"
-#import <AVKit/AVKit.h>
+#import "contentView.h"
 
 @interface AppDelegate : NSObject <NSApplicationDelegate, NSTableViewDataSource,NSSplitViewDelegate,NSTextFieldDelegate>{
     
@@ -30,7 +30,13 @@
 @property (strong,nonatomic)NSMutableArray *projectList;
 @property (strong) Project *selectedProject;
 
-@property (weak) IBOutlet AVPlayerView *myPlayerView;
+
+@property (weak) IBOutlet NSView *videoContainerView;
+@property (weak) IBOutlet contentView *myContentView;
+@property (weak) IBOutlet NSView *playerControls;
+@property (weak) IBOutlet playerView *playerViewHolder;
+@property (weak) IBOutlet NSView *myPlayerView;
+
 @property (strong) AVPlayer *player;
 @property (strong,nonatomic)AVPlayerItem *playerItem;
 @property (strong,nonatomic)AVPlayerLayer *playerLayer;

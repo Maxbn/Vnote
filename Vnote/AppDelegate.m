@@ -12,14 +12,22 @@
 @implementation AppDelegate
 @synthesize listTableView,projectTableView,taskEntry,projectList,
 addTaskButton,removeTaskButton,myPlayerView,timeSlider,window,selectedProject,player,playerItem,playerObserver,playerLayer
-,insertVideoText,verticalSplitView,textCellSize,result,taskInfoView,editTaskField,assignedToLabel,assignementBox,removeCollaborator,historyShouldBeVisible,isFullScreen;
+,insertVideoText,verticalSplitView,textCellSize,result,taskInfoView,editTaskField,assignedToLabel,assignementBox,removeCollaborator,historyShouldBeVisible,isFullScreen,playerViewHolder,playerControls,myContentView,videoContainerView;
 
 - (void)awakeFromNib{
     
     
     [assignementBox setStringValue:@"choose"];
     [listTableView registerForDraggedTypes:[NSArray arrayWithObject:@"Task"]];
-   [addTaskButton setKeyEquivalent:@"\r"];
+    [playerControls setAlphaValue:0];
+    [playerViewHolder setNextResponder:myContentView];
+    
+    NSResponder *theNextResponder = [playerViewHolder nextResponder];
+    
+    NSLog(@"%@",theNextResponder);
+
+    
+ 
     
 }
 
@@ -41,6 +49,8 @@ addTaskButton,removeTaskButton,myPlayerView,timeSlider,window,selectedProject,pl
         historyShouldBeVisible = NO;
         isFullScreen = NO;
         
+
+        
         
         
 
@@ -59,22 +69,21 @@ addTaskButton,removeTaskButton,myPlayerView,timeSlider,window,selectedProject,pl
     
     player = [AVPlayer playerWithURL:Nil];
     
-    myPlayerView.player = player;
     
     //        creates a video layer
     
-//    [self.myPlayerView setWantsLayer:YES];
-//    playerLayer = [AVPlayerLayer playerLayerWithPlayer:player];
-//    
-//    
-//    
-//    playerLayer.frame = self.myPlayerView.layer.bounds;
-//    [self.myPlayerView.layer addSublayer:playerLayer];
-////    [playerLayer setVideoGravity:AVLayerVideoGravityResizeAspectFill];
-//    playerLayer.autoresizingMask = kCALayerWidthSizable |
-//    kCALayerHeightSizable;
-//    
-//    playerItem = [AVPlayerItem playerItemWithAsset:Nil];
+    [self.myPlayerView setWantsLayer:YES];
+    playerLayer = [AVPlayerLayer playerLayerWithPlayer:player];
+    
+    
+    
+    playerLayer.frame = self.myPlayerView.layer.bounds;
+    [self.myPlayerView.layer addSublayer:playerLayer];
+//    [playerLayer setVideoGravity:AVLayerVideoGravityResizeAspectFill];
+    playerLayer.autoresizingMask = kCALayerWidthSizable |
+    kCALayerHeightSizable;
+    
+    playerItem = [AVPlayerItem playerItemWithAsset:Nil];
     
     __weak typeof(self) weakSelf = self;
     
@@ -109,9 +118,13 @@ addTaskButton,removeTaskButton,myPlayerView,timeSlider,window,selectedProject,pl
         if ([taskName length] == 0 || [taskEntry.stringValue isEqual: @" "]) {
             [taskEntry setStringValue:@""];
             [taskEntry setEnabled:NO];
+            [[playerControls animator] setAlphaValue:0];
             [player play];
+            
+
             return;
         }else if ([projectTableView selectedRow] ==-1){
+            
             return;
         }
         
@@ -136,6 +149,9 @@ addTaskButton,removeTaskButton,myPlayerView,timeSlider,window,selectedProject,pl
         [listTableView reloadData];
         [taskEntry setStringValue:@""];
         [taskEntry setEnabled:NO];
+        [playerControls setAlphaValue:0];
+
+        
         
     }
     
@@ -237,42 +253,48 @@ addTaskButton,removeTaskButton,myPlayerView,timeSlider,window,selectedProject,pl
     
     if ([player rate] != 1.f)
 	{
-		
+        [[playerControls animator]setAlphaValue:0];
+
 		[player play];
+
 //        [taskEntry setEnabled:NO];
 	}
 	else
 	{
         [player pause];
+        [[playerControls animator]setAlphaValue:1];
+//        [playerControls setAlphaValue:1];
         [taskEntry setEnabled:YES];
+
+
+        [playerControls setHidden:NO];
+
         [taskEntry selectText:taskEntry];
 	}
 }
 
 - (IBAction)enterFullScreen:(id)sender {
     
-    if (selectedProject != nil && (![myPlayerView isInFullScreenMode])) {
-        NSScreen *screen = [NSScreen mainScreen];
-        [myPlayerView enterFullScreenMode:screen withOptions:nil];
-    
-        [[myPlayerView animator]setFrame:[screen frame]];
-        [self.window makeFirstResponder:self.window];
+//    if (selectedProject != nil && (![playerViewHolder isInFullScreenMode])) {
+//        NSScreen *screen = [NSScreen mainScreen];
         
-       
+        
+//        [[playerViewHolder animator]setFrame:[screen frame]];
 
+//        [playerViewHolder enterFullScreenMode:screen withOptions:nil];
+//        [playerViewHolder.window makeFirstResponder:playerViewHolder.window];
         
-  
-        
+ 
+     
     
         }
         
 //    else if ([myPlayerView isInFullScreenMode]){
 //            [myPlayerView exitFullScreenModeWithOptions:nil];
-////            [[myPlayerView animator] setFrame:
 //            isFullScreen = NO;
 //        }
-//    
-}
+    
+//}
 
 - (IBAction)checkTask:(id)sender{
     
@@ -648,6 +670,7 @@ addTaskButton,removeTaskButton,myPlayerView,timeSlider,window,selectedProject,pl
 //            [player seekToTime:selectedTask.timeCode];
             [player seekToTime:selectedTask.timeCode toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero];
             [player pause];
+            [playerControls setAlphaValue:0];
 //            [listTableView reloadData];
         }
         
