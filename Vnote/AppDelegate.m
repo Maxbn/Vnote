@@ -7,12 +7,13 @@
 //
 
 #import "AppDelegate.h"
+#import "Mail.h"
 
 
 @implementation AppDelegate
 @synthesize listTableView,projectTableView,taskEntry,projectList,
 addTaskButton,removeTaskButton,myPlayerView,timeSlider,window,selectedProject,player,playerItem,playerObserver,playerLayer
-,insertVideoText,verticalSplitView,textCellSize,result,taskInfoView,editTaskField,assignedToLabel,assignementBox,removeCollaborator,historyShouldBeVisible,isFullScreen,playerViewHolder,playerControls,myContentView,videoContainerView;
+,insertVideoText,verticalSplitView,textCellSize,result,taskInfoView,editTaskField,assignedToLabel,assignementBox,removeCollaborator,historyShouldBeVisible,isFullScreen,playerViewHolder,playerControls,myContentView,videoContainerView,taskScrollView,filterArray,myProjectButtonView,progressBar,playButton;
 
 - (void)awakeFromNib{
     
@@ -20,11 +21,30 @@ addTaskButton,removeTaskButton,myPlayerView,timeSlider,window,selectedProject,pl
     [assignementBox setStringValue:@"choose"];
     [listTableView registerForDraggedTypes:[NSArray arrayWithObject:@"Task"]];
     [playerControls setAlphaValue:0];
-    [playerViewHolder setNextResponder:myContentView];
+//    [playerViewHolder setNextResponder:myContentView];
+
     
-    NSResponder *theNextResponder = [playerViewHolder nextResponder];
+    [removeTaskButton setAlphaValue:0];
     
-    NSLog(@"%@",theNextResponder);
+//    NSTrackingArea *trackingView= [[NSTrackingArea alloc]initWithRect:playerViewHolder.frame options:(NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved | NSTrackingActiveInKeyWindow ) owner:self userInfo:nil];
+//    
+    
+    CIFilter *blurFilter= [CIFilter filterWithName:@"CIGaussianBlur"];
+    [blurFilter setValue:[NSNumber numberWithFloat:10] forKey:@"inputRadius"];
+    
+    CIFilter *affineClampFilter = [CIFilter filterWithName:@"CIAffineClamp"];
+    
+    CGAffineTransform xform = CGAffineTransformMakeScale(1.0, 1.0);
+    [affineClampFilter setValue:[NSValue valueWithBytes:&xform
+                                               objCType:@encode(CGAffineTransform)]
+                         forKey:@"inputTransform"];
+    
+    filterArray = [NSArray arrayWithObjects:affineClampFilter,blurFilter, nil];
+    [progressBar setAlphaValue:0];
+    
+    [taskInfoView setBackgroundFilters:nil];
+
+    
 
     
  
@@ -46,10 +66,16 @@ addTaskButton,removeTaskButton,myPlayerView,timeSlider,window,selectedProject,pl
         
         [[editTaskField cell]setLineBreakMode:NSLineBreakByWordWrapping];
         [taskEntry setEnabled:NO];
+        
+        
+
+        
         historyShouldBeVisible = NO;
         isFullScreen = NO;
         
-
+    
+        
+        
         
         
         
@@ -65,7 +91,8 @@ addTaskButton,removeTaskButton,myPlayerView,timeSlider,window,selectedProject,pl
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification{
     
-    [projectTableView setBackgroundColor:[NSColor clearColor]];
+//    [projectTableView setBackgroundColor:[NSColor clearColor]];
+    
     
     player = [AVPlayer playerWithURL:Nil];
     
@@ -119,7 +146,7 @@ addTaskButton,removeTaskButton,myPlayerView,timeSlider,window,selectedProject,pl
             [taskEntry setStringValue:@""];
             [taskEntry setEnabled:NO];
             [[playerControls animator] setAlphaValue:0];
-            [player play];
+//            [player play];
             
 
             return;
@@ -137,6 +164,8 @@ addTaskButton,removeTaskButton,myPlayerView,timeSlider,window,selectedProject,pl
         newTask.timeCode = videoTime;
         [newTask setformatedTime:videoTimeCode];
         
+        
+//        Sets up the checked button
         newTask.checked = [[NSButton alloc]init];
         [newTask.checked setButtonType:NSSwitchButton];
         [newTask.checked setTitle:@""];
@@ -144,12 +173,23 @@ addTaskButton,removeTaskButton,myPlayerView,timeSlider,window,selectedProject,pl
         SEL aSelector = @selector(checkTask:);
         [newTask.checked setAction:aSelector];
         
+//        Sets up the deleteTask button
+        
+        newTask.deleteTask = [[NSButton alloc]init];
+        [newTask.deleteTask setButtonType:NSToggleButton];
+        [newTask.deleteTask setTitle:@"X"];
+        [newTask.deleteTask setTag:[selectedProject.toDoList count]];
+        SEL anotherSelector = @selector(removeTask::);
+        [newTask.deleteTask setAction:anotherSelector];
+
+
+        
         [selectedProject.toDoList addObject:newTask];
         
         [listTableView reloadData];
         [taskEntry setStringValue:@""];
         [taskEntry setEnabled:NO];
-        [playerControls setAlphaValue:0];
+//        [playerControls setAlphaValue:0];
 
         
         
@@ -254,20 +294,34 @@ addTaskButton,removeTaskButton,myPlayerView,timeSlider,window,selectedProject,pl
     if ([player rate] != 1.f)
 	{
         [[playerControls animator]setAlphaValue:0];
-
+//        [playerControls setBackgroundFilters:nil];
+        
 		[player play];
+        [[self playButton] setState:NSOffState];
+
+        [self.window makeFirstResponder:myPlayerView.window];
+        
+        if (taskInfoView.alphaValue == 1.0) {
+            [[taskInfoView animator] setAlphaValue:0];
+            [taskInfoView setBackgroundFilters:nil];
+        }
 
 //        [taskEntry setEnabled:NO];
 	}
 	else
 	{
         [player pause];
+        
+//        [playerControls setBackgroundFilters:filterArray];
+//        [self animateFilterIn];
         [[playerControls animator]setAlphaValue:1];
-//        [playerControls setAlphaValue:1];
         [taskEntry setEnabled:YES];
+        if ([[self playButton] state] == NSOffState) {
+            [[self playButton] setState:NSOnState];
+        }
 
 
-        [playerControls setHidden:NO];
+//        [playerControls setHidden:NO];
 
         [taskEntry selectText:taskEntry];
 	}
@@ -360,6 +414,9 @@ addTaskButton,removeTaskButton,myPlayerView,timeSlider,window,selectedProject,pl
 
 - (IBAction)exportPDF:(id)sender {
     
+    [[progressBar animator] setAlphaValue:1];
+    [progressBar startAnimation:nil];
+    
     //   Create an array with the requested frames
     if ([projectTableView selectedRow] !=-1) {
         Project *projectToExport = self.selectedProject;
@@ -408,6 +465,9 @@ addTaskButton,removeTaskButton,myPlayerView,timeSlider,window,selectedProject,pl
         NSSize pageSize = {1920,1080};
         int pageNumber = 1;
         
+        [[progressBar animator] setAlphaValue:0];
+        [progressBar startAnimation:nil];
+        
         
         if ([savePanel runModal] == NSOKButton) {
             
@@ -446,8 +506,17 @@ addTaskButton,removeTaskButton,myPlayerView,timeSlider,window,selectedProject,pl
                 pageNumber = 3;
             }else if (pdfView.frameCount > 18 && pdfView.frameCount < 25){
                 pageNumber = 4;
+            }else if (pdfView.frameCount > 24 && pdfView.frameCount < 31){
+                pageNumber = 5;
+            }else if (pdfView.frameCount > 30 && pdfView.frameCount < 37){
+                pageNumber = 6;
+            }else if (pdfView.frameCount > 36 && pdfView.frameCount < 43){
+                pageNumber = 7;
+            }else if (pdfView.frameCount > 42 && pdfView.frameCount < 49){
+                pageNumber = 8;
+            }else if (pdfView.frameCount > 48 && pdfView.frameCount < 55){
+                pageNumber = 9;
             }
-            
             NSSize pdfSize = {pageSize.width,pageSize.height *pageNumber};
             
             [pdfView setFrameSize:pdfSize];
@@ -506,6 +575,7 @@ addTaskButton,removeTaskButton,myPlayerView,timeSlider,window,selectedProject,pl
     [player pause];
     [playerItem stepByCount:-1];
 }
+
 
 //- (IBAction)openInfo:(id)sender {
 //   infoButton *button = (infoButton *)sender;
@@ -593,7 +663,12 @@ addTaskButton,removeTaskButton,myPlayerView,timeSlider,window,selectedProject,pl
     //    Turns ON or OFF the buttons
     if (selectedProject != nil){
         
-        [taskInfoView setHidden:YES];
+//        [taskInfoView setHidden:YES];
+        
+        [[taskInfoView animator] setAlphaValue:0];
+        //    [self animateFilterIn];
+        [taskInfoView setBackgroundFilters:nil];
+
         [addTaskButton setEnabled:YES];
     }else if (selectedProject == nil || ![editTaskField isHidden]){
         [addTaskButton setEnabled:NO];
@@ -667,10 +742,17 @@ addTaskButton,removeTaskButton,myPlayerView,timeSlider,window,selectedProject,pl
             
             Task *selectedTask = [selectedProject.toDoList objectAtIndex:[listTableView selectedRow]];
             
+//            Display the player
+
+            
 //            [player seekToTime:selectedTask.timeCode];
             [player seekToTime:selectedTask.timeCode toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero];
             [player pause];
-            [playerControls setAlphaValue:0];
+//            [playerControls setBackgroundFilters:filterArray];
+
+            [[playerControls animator]setAlphaValue:1];
+
+
 //            [listTableView reloadData];
         }
         
@@ -737,7 +819,7 @@ addTaskButton,removeTaskButton,myPlayerView,timeSlider,window,selectedProject,pl
     
     [result setBordered:NO];
     [[result cell] setLineBreakMode:NSLineBreakByTruncatingTail];
-    [[result cell]setBackgroundColor:[NSColor clearColor]];
+//    [[result cell]setBackgroundColor:[NSColor clearColor]];
     [[result cell] setTruncatesLastVisibleLine:NO];
     [result setFocusRingType:NSFocusRingTypeNone];
     [tableView setSelectionHighlightStyle:NSTableViewSelectionHighlightStyleRegular];
@@ -798,7 +880,8 @@ addTaskButton,removeTaskButton,myPlayerView,timeSlider,window,selectedProject,pl
                     
                     
                     result.stringValue = theName;
-                    [[result cell]setBackgroundColor:[NSColor clearColor]];
+                    [result setBackgroundColor:[NSColor clearColor]];
+
                     Task *task = [checkList objectAtIndex:row];
                     
                     
@@ -839,7 +922,8 @@ addTaskButton,removeTaskButton,myPlayerView,timeSlider,window,selectedProject,pl
                     
                     
                     result.stringValue = theName;
-                    [[result cell]setBackgroundColor:[NSColor clearColor]];
+                    [result setBackgroundColor:[NSColor clearColor]];
+
                     Task *task = [checkList objectAtIndex:row];
                     
                     
@@ -850,6 +934,7 @@ addTaskButton,removeTaskButton,myPlayerView,timeSlider,window,selectedProject,pl
                     }
                     
                     [result setEditable:NO];
+                    
                     
                
                     [tableView setDoubleAction:@selector(openInfoPanel)];
@@ -875,7 +960,7 @@ addTaskButton,removeTaskButton,myPlayerView,timeSlider,window,selectedProject,pl
                     if ([taskList count] != 0) {
                         NSString *timeCode = [taskList objectAtIndex:row];
                         result.stringValue = timeCode;
-                        [[result cell]setBackgroundColor:[NSColor clearColor]];
+                        [result setBackgroundColor:[NSColor clearColor]];
                         
                         Task *task = [timeList objectAtIndex:row];
                         
@@ -900,7 +985,9 @@ addTaskButton,removeTaskButton,myPlayerView,timeSlider,window,selectedProject,pl
                     if ([taskList count] != 0) {
                         NSString *timeCode = [taskList objectAtIndex:row];
                         result.stringValue = timeCode;
-                        [[result cell]setBackgroundColor:[NSColor clearColor]];
+//                        [[result cell]setBackgroundColor:[NSColor clearColor]];
+                        
+                        [result setBackgroundColor:[NSColor clearColor]];
                         
                         Task *task = [timeList objectAtIndex:row];
                         
@@ -1009,11 +1096,13 @@ addTaskButton,removeTaskButton,myPlayerView,timeSlider,window,selectedProject,pl
             
             NSString *projectName = [projectNameList objectAtIndex:row ];
             [[result cell] setLineBreakMode:NSLineBreakByTruncatingTail];
-            [[result cell]setBackgroundColor:[NSColor clearColor]];
+        [result setBackgroundColor:[NSColor clearColor]];
             [result setEditable:NO];
             
             result.stringValue = projectName;
-            
+            [[result cell] setTextColor:[NSColor blackColor]];
+        
+        
             return result;
         
             NSLog(@"Pupulated the Project Column");
@@ -1077,7 +1166,6 @@ addTaskButton,removeTaskButton,myPlayerView,timeSlider,window,selectedProject,pl
  
     
 }
-
 
 
 #pragma mark Save program
@@ -1164,14 +1252,22 @@ addTaskButton,removeTaskButton,myPlayerView,timeSlider,window,selectedProject,pl
     
 //    Disables the video player
     
-    playerItem = [AVPlayerItem playerItemWithAsset:Nil];
-    [player replaceCurrentItemWithPlayerItem:playerItem];
+//    playerItem = [AVPlayerItem playerItemWithAsset:Nil];
+//    [player replaceCurrentItemWithPlayerItem:playerItem];
+//    
+    [[playerControls animator] setAlphaValue:0];
     
 //    Fills the textfied with the task name
     
     NSString *newStringValue = [[selectedProject.toDoList objectAtIndex:[listTableView selectedRow]] taskName];
     editTaskField.stringValue = newStringValue ;
-    [taskInfoView setHidden:NO];
+    
+    
+    [[taskInfoView animator] setAlphaValue:1.0];
+//    [self animateFilterIn];
+    [taskInfoView setBackgroundFilters:filterArray];
+
+//    [taskInfoView setHidden:NO];
     
 //    Fills the combobox with the values
     
@@ -1264,8 +1360,248 @@ addTaskButton,removeTaskButton,myPlayerView,timeSlider,window,selectedProject,pl
     return YES;
 }
 
-#pragma mark Fullscreen Player
+#pragma mark email
 
+
+- (IBAction)mailPDF:(id)sender {
+    
+    [[progressBar animator] setAlphaValue:1];
+    [progressBar startAnimation:nil];
+    
+//    Creates the email
+    
+    MailApplication *mail = [SBApplication applicationWithBundleIdentifier:@"com.apple.Mail"];
+    
+    mail.delegate = self;
+    
+    MailOutgoingMessage *emailMessage = [[[mail classForScriptingClass:@"outgoing message"] alloc] initWithProperties:nil];
+    
+    if(!emailMessage)
+        return;
+    
+    [[mail outgoingMessages] addObject: emailMessage];
+    
+    Project *projectToExport = self.selectedProject;
+    NSSavePanel *savePanel = [NSSavePanel savePanel];
+
+
+    NSString *saveName = [projectToExport.projectName stringByAppendingString:@".pdf"];
+
+    
+   
+//    Creates and attach the pdf
+
+    //   Create an array with the requested frames
+    if ([projectTableView selectedRow] !=-1) {
+        
+        Project *projectToExport = self.selectedProject;
+        NSMutableArray *framesToExport = [NSMutableArray array];
+        NSMutableArray *captionToExport = [NSMutableArray array];
+        NSMutableArray *timeCodesToExport = [NSMutableArray array];
+        NSMutableArray *assignementsToExport = [NSMutableArray array];
+        
+        if (projectToExport) {
+            
+            for ( Task * taskToExport in projectToExport.toDoList) {
+                AVAsset *myAsset = [AVAsset assetWithURL:projectToExport.videoUrl];
+                AVAssetImageGenerator *imageGenerator = [[AVAssetImageGenerator alloc]initWithAsset:myAsset];
+                
+                CGSize maxSize = CGSizeMake(602, 601);
+                imageGenerator.maximumSize = maxSize;
+                imageGenerator.requestedTimeToleranceAfter = kCMTimeZero;
+                imageGenerator.requestedTimeToleranceBefore = kCMTimeZero;
+                
+                NSError *error;
+                CMTime captureTime = taskToExport.timeCode;
+                
+                
+                CGImageRef frame = [imageGenerator copyCGImageAtTime:captureTime actualTime:nil error:&error];
+                
+                
+                if(frame != NULL){
+                    
+                    [framesToExport addObject:(__bridge id)(frame)];
+                    CGImageRelease(frame);
+                }
+                
+                if (taskToExport.assignedTo == Nil) {
+                    taskToExport.assignedTo = @" ";
+                }
+                
+                [captionToExport addObject:taskToExport.taskName];
+                [timeCodesToExport addObject:taskToExport.formatedTime];
+                [assignementsToExport addObject:taskToExport.assignedTo];
+            }
+            
+        }
+        
+
+        NSSize pageSize = {1920,1080};
+        int pageNumber = 1;
+        
+        [savePanel setDirectoryURL:[NSURL URLWithString:NSTemporaryDirectory()]];
+        NSString *saveName = [projectToExport.projectName stringByAppendingString:@".pdf"];
+        [savePanel setNameFieldStringValue:saveName];
+        
+//        if ([savePanel runModal] == NSOKButton) {
+        
+            NSPrintInfo *printInfo;
+            NSPrintInfo *sharedInfo;
+            NSPrintOperation *printOp;
+            NSMutableDictionary *printInfoDict;
+            NSMutableDictionary *sharedDict;
+            
+            sharedInfo = [NSPrintInfo sharedPrintInfo];
+            sharedDict = [sharedInfo dictionary];
+            printInfoDict = [NSMutableDictionary dictionaryWithDictionary:
+                             sharedDict];
+            
+            [printInfoDict setObject:NSPrintSaveJob
+                              forKey:NSPrintJobDisposition];
+            
+            [printInfoDict setObject:[[savePanel URL]path] forKey:NSPrintSavePath];
+            
+            
+            printInfo = [[NSPrintInfo alloc] initWithDictionary: printInfoDict];
+            [printInfo setHorizontalPagination: NSAutoPagination];
+            [printInfo setOrientation:NSLandscapeOrientation];
+            
+            pdfView.frameCount = framesToExport.count;
+            pdfView.frameScale = 2.25;
+            pdfView.pageSize = NSMakeSize(1920, 1080);
+            pdfView.frames = framesToExport;
+            pdfView.captions = captionToExport;
+            pdfView.timeCodes = timeCodesToExport;
+            pdfView.assignements = assignementsToExport;
+            
+            if(pdfView.frameCount > 6 && pdfView.frameCount < 13){
+                pageNumber = 2;
+            }else if (pdfView.frameCount > 12 && pdfView.frameCount < 19){
+                pageNumber = 3;
+            }else if (pdfView.frameCount > 18 && pdfView.frameCount < 25){
+                pageNumber = 4;
+            }else if (pdfView.frameCount > 24 && pdfView.frameCount < 31){
+                pageNumber = 5;
+            }else if (pdfView.frameCount > 30 && pdfView.frameCount < 37){
+                pageNumber = 6;
+            }else if (pdfView.frameCount > 36 && pdfView.frameCount < 43){
+                pageNumber = 7;
+            }else if (pdfView.frameCount > 42 && pdfView.frameCount < 49){
+                pageNumber = 8;
+            }else if (pdfView.frameCount > 48 && pdfView.frameCount < 55){
+                pageNumber = 9;
+            }
+        
+        
+            NSSize pdfSize = {pageSize.width,pageSize.height *pageNumber};
+            
+            [pdfView setFrameSize:pdfSize];
+            [printInfo setPaperSize:pageSize];
+            [printInfo setVerticalPagination: NSAutoPagination];
+            [printInfo setBottomMargin:0];
+            [printInfo setLeftMargin:0];
+            [printInfo setRightMargin:0];
+            [printInfo setTopMargin:0];
+            
+            
+            
+            printOp = [NSPrintOperation printOperationWithView:pdfView
+                                                     printInfo:printInfo];
+            [printOp setShowsPrintPanel:NO];
+            [printOp setShowsProgressPanel:NO];
+            [printOp runOperation];
+            
+//        }
+    }
+
+
+
+
+//    End of the PDF CREATION
+
+
+    NSString *attachmentFilePath = [[savePanel URL] path];
+    MailAttachment *theAttachment;
+
+    /* In Snow Leopard, the fileName property requires an NSString representing the path to the
+     * attachment.  In Lion, the property has been changed to require an NSURL.   */
+    SInt32 osxMinorVersion;
+    Gestalt(gestaltSystemVersionMinor, &osxMinorVersion);
+    
+    /* create an attachment object */
+    if(osxMinorVersion >= 7)
+        theAttachment = [[[mail classForScriptingClass:@"attachment"] alloc] initWithProperties:
+                         [NSDictionary dictionaryWithObjectsAndKeys:
+                          [NSURL URLWithString:attachmentFilePath], @"fileName",
+                          nil]];
+    else
+    /* The string we read from the text field is a URL so we must create an NSURL instance with it
+     * and retrieve the old style file path from the NSURL instance. */
+        theAttachment = [[[mail classForScriptingClass:@"attachment"] alloc] initWithProperties:
+                         [NSDictionary dictionaryWithObjectsAndKeys:
+                          [[NSURL URLWithString:attachmentFilePath] path], @"fileName",
+                          nil]];
+    
+    /* Handle a nil value gracefully. */
+    if(!theAttachment)
+        return;
+    
+    /* add it to the list of attachments */
+    [[emailMessage.content attachments] addObject: theAttachment];
+    
+
+   
+    
+
+
+
+
+
+//    Send the email
+    [[progressBar animator] setAlphaValue:0];
+
+    [progressBar stopAnimation:nil];
+
+    emailMessage.visible = YES;
+    
+    [[NSWorkspace sharedWorkspace] launchApplication:@"Mail.app"];
+
+
+
+}
+
+
+//-(void)animateFilterIn{
+//    
+////    Clamp filter settings
+//    
+//    CIFilter *affineClampFilter = [CIFilter filterWithName:@"CIAffineClamp"];
+//    
+//    CGAffineTransform xform = CGAffineTransformMakeScale(1.0, 1.0);
+//    [affineClampFilter setValue:[NSValue valueWithBytes:&xform
+//                                               objCType:@encode(CGAffineTransform)]
+//                         forKey:@"inputTransform"];
+//    
+////    Blur filter settings
+//    
+//    CABasicAnimation* blurAnimation = [CABasicAnimation animation];
+//    CIFilter *blurFilter = [CIFilter filterWithName:@"CIGaussianBlur"];
+//    [blurFilter setDefaults];
+//    [blurFilter setValue:[NSNumber numberWithFloat:0.0] forKey:@"inputRadius"];
+//    [blurFilter setName:@"blur"];
+//    [[taskInfoView layer] setFilters:[NSArray arrayWithObject:blurFilter]];
+//    
+//    blurAnimation.keyPath = @"filters.blur.inputRadius";
+//    blurAnimation.fromValue = [NSNumber numberWithFloat:0.0f];
+//    blurAnimation.toValue = [NSNumber numberWithFloat:10];
+//    blurAnimation.duration = 1.2;
+//    
+////    [taskInfoView.layer addAnimation:blurAnimation forKey:@"blurAnimation"];
+//    
+//    
+//    [playerControls setBackgroundFilters:filterArray];
+//    
+//}
 
 
 

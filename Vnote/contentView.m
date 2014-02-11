@@ -14,8 +14,15 @@
 
 -(void)awakeFromNib{
     
-    NSLog(@"Rising from the depth of the NIB");
+//    AppDelegate *myApp = (AppDelegate *) [[NSApplication sharedApplication]delegate];
+
+    
+//    NSLog(@"Rising from the depth of the NIB");
     isFullScren = NO;
+    
+//     NSTrackingArea *trackingView= [[NSTrackingArea alloc]initWithRect:self.frame options:(NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved | NSTrackingActiveInKeyWindow ) owner:self userInfo:nil];
+//    
+//    [self addTrackingArea:trackingView];
 }
 
 
@@ -44,49 +51,52 @@
 }
 
 -(void)keyDown:(NSEvent *)theEvent{
-    if ([[theEvent characters]isEqualToString:@"i"]) {
-        
-        
-        AppDelegate *myApp = (AppDelegate *) [[NSApplication sharedApplication]delegate];
-        NSScreen *myScreen = [NSScreen mainScreen];
-
-        
-//        Maximizes the video
-        
-        if (myApp.selectedProject != nil && [myApp.myContentView isFullScren] == NO){
-            
-            [myApp.playerViewHolder removeFromSuperview];
-
-            [myApp.myContentView addSubview: myApp.playerViewHolder];
-            [myApp.playerViewHolder setFrame:myApp.window.frame];
-
-            [myApp.playerViewHolder setFrameOrigin:myScreen.frame.origin];
-            
-            [myApp.window setFrame:myScreen.frame display:YES animate:YES];
-            
-            myApp.myContentView.isFullScren = YES;
     
-        }
+    AppDelegate *myApp = (AppDelegate *) [[NSApplication sharedApplication]delegate];
+    
+    unichar deleteKey = NSDeleteCharacter;
+    if ([[theEvent characters]isEqualToString:@"i"]) {
+    
         
-        else if ([myApp.myContentView isFullScren] == YES){
-            
-            [myApp.playerViewHolder removeFromSuperview];
-            
-            [myApp.playerViewHolder setFrame:myApp.videoContainerView.frame];
-            
-            [myApp.playerViewHolder setFrameOrigin:myApp.videoContainerView.frame.origin];
-
-
-            
-            [myApp.videoContainerView addSubview:myApp.playerViewHolder];
-            
-            myApp.myContentView.isFullScren = NO;
-
-
-
-        }
-
-
+//        NSScreen *myScreen = [NSScreen mainScreen];
+//
+//        
+////        Maximizes the video
+//        
+//        if (myApp.selectedProject != nil && [myApp.myContentView isFullScren] == NO){
+//            
+//            [myApp.playerViewHolder removeFromSuperview];
+//
+//            [myApp.myContentView addSubview: myApp.playerViewHolder];
+//            [myApp.playerViewHolder setFrame:myApp.window.frame];
+//
+//            [myApp.playerViewHolder setFrameOrigin:myScreen.frame.origin];
+//            
+//            [myApp.window setFrame:myScreen.frame display:YES animate:YES];
+//            
+//            myApp.myContentView.isFullScren = YES;
+//    
+//        }
+//        
+//        else if ([myApp.myContentView isFullScren] == YES){
+//            
+//            [myApp.playerViewHolder removeFromSuperview];
+//            
+//            [myApp.playerViewHolder setFrame:myApp.videoContainerView.frame];
+//            
+//            [myApp.playerViewHolder setFrameOrigin:myApp.videoContainerView.frame.origin];
+//
+//
+//            
+//            [myApp.videoContainerView addSubview:myApp.playerViewHolder];
+//            
+//            myApp.myContentView.isFullScren = NO;
+//
+//
+//
+//        }
+//
+//
       
 
         
@@ -94,7 +104,6 @@
     
     else if ([[theEvent characters]isEqualToString:@" "]) {
         
-        AppDelegate *myApp = (AppDelegate *) [[NSApplication sharedApplication]delegate];
         
         [myApp playVideo:nil];
         [myApp.taskEntry setStringValue:@""];
@@ -104,13 +113,36 @@
         
         NSLog(@"return has been hit");
         
-        AppDelegate *myApp = (AppDelegate *) [[NSApplication sharedApplication]delegate];
         
         [myApp addTask:nil];
     }
     
+    else if ([[theEvent characters]characterAtIndex:0] == NSDeleteCharacter) {
+        
+        NSLog(@"R has been hit");
+        
+        [myApp removeTask:nil];
+        
+
+        
+//
+//        [myApp addTask:nil];
+    
+    
+    }
     
 }
+
+-(BOOL)acceptsFirstMouse:(NSEvent *)theEvent{
+    return NO;
+}
+
+//
+//-(void)mouseMoved:(NSEvent *)theEvent{
+//    
+//   
+//    NSLog(@"Mouse is moving from %@",self);
+//}
 
 
 

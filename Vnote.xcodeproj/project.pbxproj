@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		500EBC651896B45600F74FDF /* contentView.m in Sources */ = {isa = PBXBuildFile; fileRef = 500EBC641896B45600F74FDF /* contentView.m */; };
+		5047B87C18A7EF5B00F264E6 /* forwardButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 5047B87B18A7EF5B00F264E6 /* forwardButton.m */; };
+		5047B87F18A7F0BE00F264E6 /* backwardButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 5047B87E18A7F0BE00F264E6 /* backwardButton.m */; };
+		5047B88218A8066900F264E6 /* exportButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 5047B88118A8066900F264E6 /* exportButton.m */; };
 		5059FC4B17C2FBA000889444 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5059FC4917C2FBA000889444 /* InfoPlist.strings */; };
 		5059FC4D17C2FBA000889444 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 5059FC4C17C2FBA000889444 /* main.m */; };
 		5059FC5117C2FBA000889444 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 5059FC4F17C2FBA000889444 /* Credits.rtf */; };
@@ -19,17 +22,44 @@
 		5059FC6817C3028400889444 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5059FC6717C3028400889444 /* QuartzCore.framework */; };
 		5059FC6A17C3028C00889444 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5059FC6917C3028C00889444 /* CoreMedia.framework */; };
 		5059FC6E17C3185300889444 /* AppDelegate in Resources */ = {isa = PBXBuildFile; fileRef = 5059FC6D17C3185300889444 /* AppDelegate */; };
+		505CAECA18A72EBD006FC7A4 /* playButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 505CAEC918A72EBD006FC7A4 /* playButton.m */; };
+		505CAECD18A736D7006FC7A4 /* sliderCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 505CAECC18A736D7006FC7A4 /* sliderCell.m */; };
+		505CAED018A73847006FC7A4 /* slider.m in Sources */ = {isa = PBXBuildFile; fileRef = 505CAECF18A73847006FC7A4 /* slider.m */; };
+		505CAED318A7431A006FC7A4 /* mailButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 505CAED218A7431A006FC7A4 /* mailButton.m */; };
 		507369FC17D63D9E00EE6248 /* dragView.m in Sources */ = {isa = PBXBuildFile; fileRef = 507369FB17D63D9E00EE6248 /* dragView.m */; };
 		5090F02D1895B72500717B1B /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5059FC6B17C3029D00889444 /* AVFoundation.framework */; };
-		5090F02F1895B78400717B1B /* AVKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5090F02E1895B78400717B1B /* AVKit.framework */; };
 		5090F0301895B7AB00717B1B /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5059FC4017C2FBA000889444 /* Cocoa.framework */; };
 		50BD8C831886E53A00403538 /* playerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 50BD8C821886E53A00403538 /* playerView.m */; };
+		50EDCD1B18A6BF9B00622B17 /* ScriptingBridge.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 50EDCD1A18A6BF9B00622B17 /* ScriptingBridge.framework */; };
+		50EDCD1E18A6C36B00622B17 /* Mail.app in Resources */ = {isa = PBXBuildFile; fileRef = 50EDCD1D18A6C36B00622B17 /* Mail.app */; };
+		50EDCD1F18A6C38D00622B17 /* Mail.app in Sources */ = {isa = PBXBuildFile; fileRef = 50EDCD1D18A6C36B00622B17 /* Mail.app */; };
+		50EDCD2218A7260200622B17 /* projectButtonView.m in Sources */ = {isa = PBXBuildFile; fileRef = 50EDCD2118A7260100622B17 /* projectButtonView.m */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXBuildRule section */
+		50EDCD1C18A6C2A300622B17 /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.proxy.script;
+			filePatterns = "*.app";
+			fileType = pattern.proxy;
+			isEditable = 1;
+			outputFiles = (
+				"$(DERIVED_FILES_DIR)/$(INPUT_FILE_BASE).h",
+			);
+			script = "sdef \"$INPUT_FILE_PATH\" | sdp -fh -o \"$DERIVED_FILES_DIR\" --basename \"$INPUT_FILE_BASE\" --bundleid `defaults read \"$INPUT_FILE_PATH/Contents/Info\" CFBundleIdentifier`";
+		};
+/* End PBXBuildRule section */
 
 /* Begin PBXFileReference section */
 		500EBC631896B45600F74FDF /* contentView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = contentView.h; sourceTree = "<group>"; };
 		500EBC641896B45600F74FDF /* contentView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = contentView.m; sourceTree = "<group>"; };
-		5059FC3D17C2FBA000889444 /* Vnote.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Vnote.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5047B87A18A7EF5B00F264E6 /* forwardButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = forwardButton.h; sourceTree = "<group>"; };
+		5047B87B18A7EF5B00F264E6 /* forwardButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = forwardButton.m; sourceTree = "<group>"; };
+		5047B87D18A7F0BE00F264E6 /* backwardButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = backwardButton.h; sourceTree = "<group>"; };
+		5047B87E18A7F0BE00F264E6 /* backwardButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = backwardButton.m; sourceTree = "<group>"; };
+		5047B88018A8066900F264E6 /* exportButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = exportButton.h; sourceTree = "<group>"; };
+		5047B88118A8066900F264E6 /* exportButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = exportButton.m; sourceTree = "<group>"; };
+		5059FC3D17C2FBA000889444 /* Feedbox.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Feedbox.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5059FC4017C2FBA000889444 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		5059FC4317C2FBA000889444 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		5059FC4417C2FBA000889444 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
@@ -52,11 +82,23 @@
 		5059FC6917C3028C00889444 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		5059FC6B17C3029D00889444 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		5059FC6D17C3185300889444 /* AppDelegate */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = AppDelegate; path = "../../../Dropbox/Maxb'n/AppDelegate"; sourceTree = "<group>"; };
+		505CAEC818A72EBD006FC7A4 /* playButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = playButton.h; sourceTree = "<group>"; };
+		505CAEC918A72EBD006FC7A4 /* playButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = playButton.m; sourceTree = "<group>"; };
+		505CAECB18A736D7006FC7A4 /* sliderCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sliderCell.h; sourceTree = "<group>"; };
+		505CAECC18A736D7006FC7A4 /* sliderCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = sliderCell.m; sourceTree = "<group>"; };
+		505CAECE18A73847006FC7A4 /* slider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = slider.h; sourceTree = "<group>"; };
+		505CAECF18A73847006FC7A4 /* slider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = slider.m; sourceTree = "<group>"; };
+		505CAED118A7431A006FC7A4 /* mailButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mailButton.h; sourceTree = "<group>"; };
+		505CAED218A7431A006FC7A4 /* mailButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = mailButton.m; sourceTree = "<group>"; };
 		507369FA17D63D9E00EE6248 /* dragView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dragView.h; sourceTree = "<group>"; };
 		507369FB17D63D9E00EE6248 /* dragView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = dragView.m; sourceTree = "<group>"; };
 		5090F02E1895B78400717B1B /* AVKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVKit.framework; path = System/Library/Frameworks/AVKit.framework; sourceTree = SDKROOT; };
 		50BD8C811886E53A00403538 /* playerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = playerView.h; sourceTree = "<group>"; };
 		50BD8C821886E53A00403538 /* playerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = playerView.m; sourceTree = "<group>"; };
+		50EDCD1A18A6BF9B00622B17 /* ScriptingBridge.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ScriptingBridge.framework; path = System/Library/Frameworks/ScriptingBridge.framework; sourceTree = SDKROOT; };
+		50EDCD1D18A6C36B00622B17 /* Mail.app */ = {isa = PBXFileReference; lastKnownFileType = wrapper.application; name = Mail.app; path = /Applications/Mail.app; sourceTree = "<absolute>"; };
+		50EDCD2018A7260100622B17 /* projectButtonView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = projectButtonView.h; sourceTree = "<group>"; };
+		50EDCD2118A7260100622B17 /* projectButtonView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = projectButtonView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -64,8 +106,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				50EDCD1B18A6BF9B00622B17 /* ScriptingBridge.framework in Frameworks */,
 				5090F0301895B7AB00717B1B /* Cocoa.framework in Frameworks */,
-				5090F02F1895B78400717B1B /* AVKit.framework in Frameworks */,
 				5090F02D1895B72500717B1B /* AVFoundation.framework in Frameworks */,
 				5059FC6A17C3028C00889444 /* CoreMedia.framework in Frameworks */,
 				5059FC6817C3028400889444 /* QuartzCore.framework in Frameworks */,
@@ -87,7 +129,7 @@
 		5059FC3E17C2FBA000889444 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				5059FC3D17C2FBA000889444 /* Vnote.app */,
+				5059FC3D17C2FBA000889444 /* Feedbox.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -95,6 +137,7 @@
 		5059FC3F17C2FBA000889444 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				50EDCD1A18A6BF9B00622B17 /* ScriptingBridge.framework */,
 				5090F02E1895B78400717B1B /* AVKit.framework */,
 				5059FC6B17C3029D00889444 /* AVFoundation.framework */,
 				5059FC6917C3028C00889444 /* CoreMedia.framework */,
@@ -131,6 +174,7 @@
 		5059FC4717C2FBA000889444 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				50EDCD1D18A6C36B00622B17 /* Mail.app */,
 				5059FC4817C2FBA000889444 /* Vnote-Info.plist */,
 				5059FC4917C2FBA000889444 /* InfoPlist.strings */,
 				5059FC4C17C2FBA000889444 /* main.m */,
@@ -143,6 +187,7 @@
 		5059FC6617C3025C00889444 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				505CAEC418A72E02006FC7A4 /* Interface design */,
 				500EBC631896B45600F74FDF /* contentView.h */,
 				500EBC641896B45600F74FDF /* contentView.m */,
 				50BD8C811886E53A00403538 /* playerView.h */,
@@ -159,6 +204,29 @@
 			name = Model;
 			sourceTree = "<group>";
 		};
+		505CAEC418A72E02006FC7A4 /* Interface design */ = {
+			isa = PBXGroup;
+			children = (
+				5047B88018A8066900F264E6 /* exportButton.h */,
+				5047B88118A8066900F264E6 /* exportButton.m */,
+				5047B87D18A7F0BE00F264E6 /* backwardButton.h */,
+				5047B87E18A7F0BE00F264E6 /* backwardButton.m */,
+				5047B87A18A7EF5B00F264E6 /* forwardButton.h */,
+				5047B87B18A7EF5B00F264E6 /* forwardButton.m */,
+				505CAECB18A736D7006FC7A4 /* sliderCell.h */,
+				505CAECC18A736D7006FC7A4 /* sliderCell.m */,
+				505CAED118A7431A006FC7A4 /* mailButton.h */,
+				505CAED218A7431A006FC7A4 /* mailButton.m */,
+				505CAECE18A73847006FC7A4 /* slider.h */,
+				505CAECF18A73847006FC7A4 /* slider.m */,
+				505CAEC818A72EBD006FC7A4 /* playButton.h */,
+				505CAEC918A72EBD006FC7A4 /* playButton.m */,
+				50EDCD2018A7260100622B17 /* projectButtonView.h */,
+				50EDCD2118A7260100622B17 /* projectButtonView.m */,
+			);
+			name = "Interface design";
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -171,12 +239,13 @@
 				5059FC3B17C2FBA000889444 /* Resources */,
 			);
 			buildRules = (
+				50EDCD1C18A6C2A300622B17 /* PBXBuildRule */,
 			);
 			dependencies = (
 			);
 			name = Vnote;
 			productName = Vnote;
-			productReference = 5059FC3D17C2FBA000889444 /* Vnote.app */;
+			productReference = 5059FC3D17C2FBA000889444 /* Feedbox.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -213,6 +282,7 @@
 				5059FC4B17C2FBA000889444 /* InfoPlist.strings in Resources */,
 				5059FC5117C2FBA000889444 /* Credits.rtf in Resources */,
 				5059FC5717C2FBA000889444 /* MainMenu.xib in Resources */,
+				50EDCD1E18A6C36B00622B17 /* Mail.app in Resources */,
 				5059FC6E17C3185300889444 /* AppDelegate in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -224,13 +294,22 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				50EDCD1F18A6C38D00622B17 /* Mail.app in Sources */,
 				50BD8C831886E53A00403538 /* playerView.m in Sources */,
+				505CAECD18A736D7006FC7A4 /* sliderCell.m in Sources */,
+				5047B87C18A7EF5B00F264E6 /* forwardButton.m in Sources */,
+				505CAED018A73847006FC7A4 /* slider.m in Sources */,
 				5059FC4D17C2FBA000889444 /* main.m in Sources */,
+				5047B87F18A7F0BE00F264E6 /* backwardButton.m in Sources */,
 				5059FC5417C2FBA000889444 /* AppDelegate.m in Sources */,
 				5059FC6317C3024C00889444 /* PDFview.m in Sources */,
 				5059FC6417C3024C00889444 /* Project.m in Sources */,
 				5059FC6517C3024C00889444 /* Task.m in Sources */,
+				5047B88218A8066900F264E6 /* exportButton.m in Sources */,
 				500EBC651896B45600F74FDF /* contentView.m in Sources */,
+				505CAED318A7431A006FC7A4 /* mailButton.m in Sources */,
+				50EDCD2218A7260200622B17 /* projectButtonView.m in Sources */,
+				505CAECA18A72EBD006FC7A4 /* playButton.m in Sources */,
 				507369FC17D63D9E00EE6248 /* dragView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -291,7 +370,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 			};
@@ -317,7 +396,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				SDKROOT = macosx;
 			};
 			name = Release;
@@ -330,7 +409,7 @@
 				GCC_PREFIX_HEADER = "Vnote/Vnote-Prefix.pch";
 				INFOPLIST_FILE = "Vnote/Vnote-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Feedbox;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -343,7 +422,7 @@
 				GCC_PREFIX_HEADER = "Vnote/Vnote-Prefix.pch";
 				INFOPLIST_FILE = "Vnote/Vnote-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Feedbox;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

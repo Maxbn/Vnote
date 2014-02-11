@@ -27,6 +27,7 @@
 @property NSMutableArray *captions;
 @property NSMutableArray *timeCodes;
 @property NSMutableArray *assignements;
+@property NSMutableArray *frameNumber;
 
 
 @end

@@ -10,21 +10,36 @@
 #import "AppDelegate.h"
 
 @implementation playerView
+@synthesize filterArray;
 
 - (id)initWithFrame:(NSRect)frame
 {
     self = [super initWithFrame:frame];
     if (self) {
 
-        NSLog(@"Player View Initiated");
         
 //        AppDelegate *myApp = (AppDelegate *) [[NSApplication sharedApplication]delegate];
 
+        trackingView= [[NSTrackingArea alloc]initWithRect:super.bounds options:(NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved | NSTrackingActiveInActiveApp ) owner:self userInfo:nil];
+        
+        
+        [self addTrackingArea:trackingView];
    
         
         
     }
     return self;
+}
+
+-(void)awakeFromNib{
+    
+    [[self window] makeFirstResponder:self];
+    [[self window] setAcceptsMouseMovedEvents:YES];
+    
+    CIFilter *darkenFilter= [CIFilter filterWithName:@"CIExposureAdjust"];
+    [darkenFilter setValue:[NSNumber numberWithFloat:-3.5] forKey:@"inputEV"];
+    
+    filterArray = [NSArray arrayWithObject:darkenFilter];
 }
 
 - (void)drawRect:(NSRect)dirtyRect
@@ -58,16 +73,56 @@
     [super keyDown:theEvent];
     
 }
-    
+
+
+
 
     
 -(void)mouseMoved:(NSEvent *)theEvent{
     
-    NSLog(@"Mouse is moving");
+    AppDelegate *myApp = (AppDelegate *) [[NSApplication sharedApplication]delegate];
+//    [myApp animateFilterIn];
+    [[myApp.playerControls animator] setAlphaValue:1];
+    
+    
+//    [myApp.playerControls setBackgroundFilters:filterArray];
+    
+//    NSLog(@"Mouse is moving from %@",self);
+}
+
+-(void)mouseEntered:(NSEvent *)theEvent{
+    
 }
 
 
+-(void)mouseExited:(NSEvent *)theEvent{
     
+    AppDelegate *myApp = (AppDelegate *) [[NSApplication sharedApplication]delegate];
+    
+    
+  
+
+    [[myApp.playerControls animator] setAlphaValue:0];
+//    [[myApp.playerControls animator] ];
+
+
+    
+//    [[myApp.playerControls animator ] setBackgroundFilters:nil];
+    
+}
+
+- (void)updateTrackingAreas {
+    
+    NSRect eyeBox;
+    [self removeTrackingArea:trackingView];
+    eyeBox = [self bounds];
+    trackingView= [[NSTrackingArea alloc]initWithRect:super.bounds options:(NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved | NSTrackingActiveInActiveApp ) owner:self userInfo:nil];
+    
+    
+    [self addTrackingArea:trackingView];
+
+}
+
 
 
 

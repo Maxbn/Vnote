@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "5059FC3C17C2FBA000889444"
-               BuildableName = "Vnote.app"
+               BuildableName = "Feedbox.app"
                BlueprintName = "Vnote"
                ReferencedContainer = "container:Vnote.xcodeproj">
             </BuildableReference>
@@ -33,7 +33,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "5059FC3C17C2FBA000889444"
-            BuildableName = "Vnote.app"
+            BuildableName = "Feedbox.app"
             BlueprintName = "Vnote"
             ReferencedContainer = "container:Vnote.xcodeproj">
          </BuildableReference>
@@ -52,7 +52,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "5059FC3C17C2FBA000889444"
-            BuildableName = "Vnote.app"
+            BuildableName = "Feedbox.app"
             BlueprintName = "Vnote"
             ReferencedContainer = "container:Vnote.xcodeproj">
          </BuildableReference>
@@ -70,7 +70,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "5059FC3C17C2FBA000889444"
-            BuildableName = "Vnote.app"
+            BuildableName = "Feedbox.app"
             BlueprintName = "Vnote"
             ReferencedContainer = "container:Vnote.xcodeproj">
          </BuildableReference>

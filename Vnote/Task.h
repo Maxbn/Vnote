@@ -25,6 +25,7 @@
 @property CMTime timeCode;
 @property NSString *formatedTime;
 @property NSButton *checked;
+@property NSButton *deleteTask;
 @property BOOL done;
 @property NSString *assignedTo;
 

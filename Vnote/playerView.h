@@ -11,9 +11,13 @@
 
 @interface playerView : NSView{
     
- 
+    NSTrackingArea *trackingView;
+    
 }
 
 @property (strong)IBOutlet NSButton *fullScreenButton;
+
+@property (strong,nonatomic)NSArray *filterArray;
+
 
 @end

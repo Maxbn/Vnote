@@ -9,7 +9,7 @@
 #import "Task.h"
 
 @implementation Task
-@synthesize taskName,timeCode,taskTime,formatedTime,checked,done,assignedTo;
+@synthesize taskName,timeCode,taskTime,formatedTime,checked,done,assignedTo,deleteTask;
 
 -(id)init{
     self = [super init];
@@ -67,34 +67,73 @@
 //    Sets the minute String
     if (seconds < 60 ) {
         minutes = @"0";
-    }else if (seconds > 60 && seconds < 120 ){
-        minutes = @"1";
-    }else if (seconds > 120 && seconds < 180 ){
-        minutes = @"2";
-    }else if (seconds > 180 && seconds < 240 ){
-        minutes = @"3";
-    }else if (seconds > 300 && seconds < 360 ){
-        minutes = @"4";
+    }else{
+        
+        int placeholder =(int)(seconds/60);
+        NSNumber *placeholderNumber = [NSNumber numberWithInt:placeholder];
+        minutes = placeholderNumber.stringValue;
+        
     }
+//    }else if (seconds > 60 && seconds < 120 ){
+//        minutes = @"01";
+//    }else if (seconds > 120 && seconds < 180 ){
+//        minutes = @"02";
+//    }else if (seconds > 180 && seconds < 240 ){
+//        minutes = @"03";
+//    }else if (seconds > 300 && seconds < 360 ){
+//        minutes = @"04";
+//    }else if (seconds > 360 && seconds < 420 ){
+//        minutes = @"05";}
     
 //    Sets the seconds String
     NSUInteger remainingSeconds;
     NSNumber *number;
+    NSUInteger divider;
+   
+    NSNumber *secondsValue = [NSNumber numberWithInt:seconds];
     
     if (seconds > 60 ) {
-        remainingSeconds = seconds - 60;
+        
+        divider = seconds / 60;
+        divider = divider * 60;
+        
+        remainingSeconds = seconds - divider;
+        
+        
+     
         number = [NSNumber numberWithUnsignedInteger:remainingSeconds];
+//
     }else{
-        number = [NSNumber numberWithUnsignedInteger:seconds];
+        remainingSeconds = seconds;
+        number = [NSNumber numberWithUnsignedInteger:remainingSeconds];
 
     }
     
     secondes = number.stringValue;
     
+    NSString *addMinute;
     
-    NSString *addMinute = [minutes stringByAppendingString:@" min " ];
-    NSString *addSeconds = [addMinute stringByAppendingString:secondes];
-    time = [addSeconds stringByAppendingString:@" sec"];
+    
+//    Adds a 0 in front of the seconds under 10
+    if (remainingSeconds <10) {
+        
+        addMinute = [minutes stringByAppendingString:@":0" ];
+
+    
+    }else{
+        
+       addMinute = [minutes stringByAppendingString:@":" ];
+        
+    }
+    
+    NSString *addSeconds =  addSeconds = [addMinute stringByAppendingString:secondes];
+
+    
+//    NSString *addSeconds =  addSeconds = [addMinute stringByAppendingString:secondes];
+    
+  
+    
+    time = [addSeconds stringByAppendingString:@""];
     
     self.formatedTime = time;
 

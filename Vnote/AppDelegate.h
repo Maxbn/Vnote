@@ -17,10 +17,19 @@
 #import "myTableView.h"
 #import "playerView.h"
 #import "contentView.h"
+#import "projectButtonView.h"
+#import "playButton.h"
+#import "sliderCell.h"
+#import "slider.h"
+#import "mailButton.h"
+#import "forwardButton.h"
+#import "backwardButton.h"
+#import "exportButton.h"
+
 
 @interface AppDelegate : NSObject <NSApplicationDelegate, NSTableViewDataSource,NSSplitViewDelegate,NSTextFieldDelegate>{
     
-
+    
     IBOutlet PDFview *pdfView;
     IBOutlet dragView *myDragView;
     
@@ -31,11 +40,11 @@
 @property (strong) Project *selectedProject;
 
 
-@property (weak) IBOutlet NSView *videoContainerView;
+@property (weak) IBOutlet playerView *videoContainerView;
 @property (weak) IBOutlet contentView *myContentView;
 @property (weak) IBOutlet NSView *playerControls;
 @property (weak) IBOutlet playerView *playerViewHolder;
-@property (weak) IBOutlet NSView *myPlayerView;
+@property (weak) IBOutlet playerView *myPlayerView;
 
 @property (strong) AVPlayer *player;
 @property (strong,nonatomic)AVPlayerItem *playerItem;
@@ -47,6 +56,7 @@
 @property (strong) NSMutableArray *textCellSize;
 @property BOOL historyShouldBeVisible;
 @property BOOL isFullScreen;
+@property (strong,nonatomic)NSArray *filterArray;
 
 
 
@@ -57,11 +67,12 @@
 @property (strong) IBOutlet NSTableView *listTableView;
 @property (strong) IBOutlet NSTextField *taskEntry;
 
-@property (strong) IBOutlet NSSliderCell *timeSlider;
+@property (strong) IBOutlet sliderCell *timeSlider;
 @property (strong) IBOutlet NSTextField *insertVideoText;
 @property (strong) IBOutlet NSSplitView *verticalSplitView;
 
 @property (strong) IBOutlet NSBox *taskInfoView;
+@property (weak) IBOutlet NSScrollView *taskScrollView;
 
 @property (weak) IBOutlet NSTextField *welcomeText;
 @property (weak) IBOutlet NSTextField *editTaskField;
@@ -73,7 +84,9 @@
 @property (weak) IBOutlet NSButton *showHistoryButton;
 @property (weak) IBOutlet NSBox *fullScreenPlayerControlBox;
 
+@property (weak) IBOutlet projectButtonView *myProjectButtonView;
 
+@property (weak) IBOutlet NSButton *playButton;
 
 - (IBAction)addProject:(id)sender;
 - (IBAction)removeProject:(id)sender;
@@ -94,6 +107,9 @@
 - (IBAction)moveOneFrameForward:(id)sender;
 - (IBAction)moveOneFrameBackward:(id)sender;
 
+- (IBAction)mailPDF:(id)sender;
+
+@property (weak) IBOutlet NSProgressIndicator *progressBar;
 
 //- (IBAction)openInfo:(id)sender;
 
@@ -111,6 +127,8 @@
 - (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn
             row:(NSInteger)rowIndex;
 
+- (CGFloat)tableView:(NSTableView *)tableView heightOfRow:(NSInteger)row;
+
 
 
 
@@ -124,7 +142,7 @@
 - (void)openInfoPanel;
 
 
-
+-(void)animateFilterIn;
 
 
 @end
